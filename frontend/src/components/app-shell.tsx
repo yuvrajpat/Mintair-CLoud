@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import {
   Boxes,
@@ -19,11 +20,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
+import type { CreditsSummary } from "../lib/types";
 import { Button } from "./ui/button";
 import { useSession } from "./session-provider";
+import { Input } from "./ui/input";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, description: "What matters right now" },
@@ -55,6 +58,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [routeDirection, setRouteDirection] = useState<"forward" | "back">("forward");
+  const [creditsOpen, setCreditsOpen] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState("25");
+  const creditsPanelRef = useRef<HTMLDivElement | null>(null);
+
+  const creditsQuery = useQuery({
+    queryKey: ["credits-summary"],
+    queryFn: () => api.billing.credits() as Promise<CreditsSummary>,
+    enabled: Boolean(user)
+  });
+
+  const checkoutMutation = useMutation({
+    mutationFn: (amountUsd: number) => api.billing.createCreditsCheckout({ amountUsd }),
+    onSuccess: (data) => {
+      window.location.href = data.checkoutUrl;
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Could not start payment.";
+      toast.error(message);
+    }
+  });
 
   const activeNav = useMemo(() => navItems.find((item) => pathname.startsWith(item.href)), [pathname]);
 
@@ -115,6 +138,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMobileNavOpen(false);
+    setCreditsOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -127,6 +151,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       document.body.style.overflow = "";
     };
   }, [mobileNavOpen]);
+
+  useEffect(() => {
+    if (!creditsOpen) {
+      return;
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (creditsPanelRef.current?.contains(event.target as Node)) {
+        return;
+      }
+      setCreditsOpen(false);
+    };
+
+    window.addEventListener("pointerdown", onPointerDown);
+    return () => window.removeEventListener("pointerdown", onPointerDown);
+  }, [creditsOpen]);
 
   const onLogout = async () => {
     try {
@@ -143,6 +183,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       setMobileNavOpen(false);
     }
   };
+
+  const onCreateTopUp = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const amountUsd = Number(topUpAmount);
+    if (!Number.isFinite(amountUsd) || amountUsd < 1) {
+      toast.error("Enter an amount of at least $1.");
+      return;
+    }
+
+    checkoutMutation.mutate(amountUsd);
+  };
+
+  const availableCredits = Number(creditsQuery.data?.balance ?? user?.creditBalance ?? 0);
 
   return (
     <div className="min-h-screen px-2 py-2 sm:px-3 sm:py-3 md:px-4 md:py-4">
@@ -173,6 +226,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-1">
               <Button size="sm" variant="ghost" className="lg:hidden" onClick={() => router.push("/docs")} aria-label="Open docs">
                 <LifeBuoy className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="lg:hidden"
+                onClick={() => setCreditsOpen((open) => !open)}
+                aria-label="Open credits"
+              >
+                <CircleDollarSign className="h-4 w-4" />
               </Button>
               <Button size="sm" variant="ghost" className="lg:hidden" onClick={() => setMobileNavOpen(false)} aria-label="Close menu">
                 <X className="h-4 w-4" />
@@ -256,6 +318,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Button size="sm" variant="ghost" onClick={() => router.push("/docs")} aria-label="Open docs">
                 <LifeBuoy className="h-4 w-4" />
               </Button>
+              <Button size="sm" variant="ghost" onClick={() => setCreditsOpen((open) => !open)} aria-label="Open credits">
+                <CircleDollarSign className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
@@ -285,8 +350,54 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   {activeNav?.description ?? "Deploy and manage infrastructure with calm, confident control."}
                 </p>
               </div>
-              <div className="hidden border border-brand-gray bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-brand-charcoal sm:block">
-                Live infrastructure workspace
+              <div ref={creditsPanelRef} className="relative flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCreditsOpen((open) => !open)}
+                  className="inline-flex items-center gap-2 border border-brand-gray bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-brand-charcoal transition-colors hover:border-brand-charcoal"
+                >
+                  <CircleDollarSign className="h-4 w-4" />
+                  Credits {availableCredits.toFixed(2)}
+                </button>
+                <div className="hidden border border-brand-gray bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-brand-charcoal sm:block">
+                  Live infrastructure workspace
+                </div>
+
+                {creditsOpen ? (
+                  <div className="absolute right-0 top-[calc(100%+8px)] z-[70] w-[285px] border border-brand-gray bg-white p-3 shadow-sm">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">Credit Wallet</p>
+                    <p className="mt-1 text-sm text-ink-700">Available: ${availableCredits.toFixed(2)}</p>
+
+                    <form className="mt-3 space-y-2" onSubmit={onCreateTopUp}>
+                      <Input
+                        type="number"
+                        min={1}
+                        step="1"
+                        value={topUpAmount}
+                        onChange={(event) => setTopUpAmount(event.target.value)}
+                        placeholder="Amount in USD"
+                      />
+                      <Button type="submit" className="w-full" loading={checkoutMutation.isPending} loadingLabel="Redirecting...">
+                        Add Credits
+                      </Button>
+                    </form>
+
+                    <p className="mt-2 text-[11px] leading-relaxed text-ink-500">
+                      You will be redirected to CopperX checkout to complete payment.
+                    </p>
+
+                    {creditsQuery.data?.recentTopUps?.length ? (
+                      <div className="mt-3 space-y-1 border-t border-brand-gray pt-2">
+                        {creditsQuery.data.recentTopUps.slice(0, 3).map((topUp) => (
+                          <div key={topUp.id} className="flex items-center justify-between text-[11px] text-ink-600">
+                            <span>${topUp.amountUsd.toFixed(2)}</span>
+                            <span className="font-mono uppercase tracking-[0.08em]">{topUp.status}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </div>
           </header>

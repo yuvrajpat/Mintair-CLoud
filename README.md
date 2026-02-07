@@ -45,6 +45,10 @@ Mintair Cloud is a full-stack cloud infrastructure and GPU marketplace platform 
 - Billing and usage
   - Current balance, invoices, payment methods (mock processing)
   - Usage grouped by instance/GPU/region
+- Credits wallet
+  - Top-right credit balance bar with quick add-credits dropdown
+  - CopperX checkout session redirect for top-ups
+  - Webhook-confirmed balance crediting + ledger records
 - Referrals
   - Unique referral code and referral link
   - Signup tracking + reward on first deployment
@@ -128,6 +132,11 @@ See `.env.example` for full list. Key values:
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
 - `GOOGLE_CALLBACK_URL`
+- `COPPERX_API_KEY`
+- `COPPERX_WEBHOOK_SECRET`
+- `COPPERX_API_BASE_URL`
+- `COPPERX_CHECKOUT_SUCCESS_URL`
+- `COPPERX_CHECKOUT_CANCEL_URL`
 - `REFERRAL_REWARD_USD`
 - `DEFAULT_CREDIT_USD`
 
@@ -145,5 +154,6 @@ npm run db:seed
 ## Notes
 
 - Payment method processing is intentionally mocked for local development.
+- Credit top-ups are processed via CopperX checkout and confirmed by webhook at `POST /api/billing/webhooks/copperx`.
 - Email verification/reset use preview tokens in development mode (`DEV_EMAIL_PREVIEW=true`).
 - Provisioning is simulated with timed state transitions and deterministic failure scenarios.

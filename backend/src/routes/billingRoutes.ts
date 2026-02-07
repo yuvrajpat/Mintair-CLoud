@@ -2,8 +2,19 @@ import { Router } from "express";
 import { requireAuth } from "../middleware/auth";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { addPaymentMethod, getBillingOverview, getUsageBreakdown } from "../services/billingService";
+import { createCopperxCheckoutSession, getCreditsSummary, handleCopperxWebhook } from "../services/creditsService";
 
 const router = Router();
+
+router.post(
+  "/webhooks/copperx",
+  asyncHandler(async (req, res) => {
+    const signatureHeader = req.get("x-webhook-signature") ?? undefined;
+    const payload = req.rawBody ?? JSON.stringify(req.body ?? {});
+    const result = await handleCopperxWebhook(payload, signatureHeader);
+    res.json({ ok: true, ...result });
+  })
+);
 
 router.get(
   "/overview",
@@ -21,6 +32,25 @@ router.get(
     const groupBy = (req.query.groupBy as "instance" | "gpu" | "region" | undefined) ?? "instance";
     const usage = await getUsageBreakdown(req.authUser!.id, groupBy);
     res.json({ usage, groupBy });
+  })
+);
+
+router.get(
+  "/credits",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const data = await getCreditsSummary(req.authUser!.id);
+    res.json(data);
+  })
+);
+
+router.post(
+  "/credits/checkout",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { amountUsd } = req.body as { amountUsd: number };
+    const result = await createCopperxCheckoutSession(req.authUser!.id, amountUsd);
+    res.status(201).json(result);
   })
 );
 

@@ -2,6 +2,7 @@ export type User = {
   id: string;
   email: string;
   fullName: string;
+  creditBalance: number;
   emailVerifiedAt: string | null;
   onboardingCompleted: boolean;
   onboardingUserType?: string | null;
@@ -98,6 +99,16 @@ export type BillingOverview = {
     description: string;
     amount: number;
     balanceAfter: number;
+    createdAt: string;
+  }>;
+};
+
+export type CreditsSummary = {
+  balance: number;
+  recentTopUps: Array<{
+    id: string;
+    amountUsd: number;
+    status: "PENDING" | "COMPLETED" | "FAILED" | "CANCELED" | "EXPIRED";
     createdAt: string;
   }>;
 };

@@ -21,21 +21,21 @@ type GoogleTokenResponse = {
   error_description?: string;
 };
 
-export type SafeUser = Pick<
-  User,
-  | "id"
-  | "email"
-  | "fullName"
-  | "emailVerifiedAt"
-  | "onboardingCompleted"
-  | "onboardingRegion"
-  | "onboardingUseCase"
-  | "onboardingUserType"
-  | "preferredRegion"
-  | "notificationBilling"
-  | "notificationProduct"
-  | "referralCode"
->;
+export type SafeUser = {
+  id: string;
+  email: string;
+  fullName: string;
+  emailVerifiedAt: Date | null;
+  onboardingCompleted: boolean;
+  onboardingRegion: string | null;
+  onboardingUseCase: string | null;
+  onboardingUserType: string | null;
+  preferredRegion: string | null;
+  notificationBilling: boolean;
+  notificationProduct: boolean;
+  referralCode: string;
+  creditBalance: number;
+};
 
 function toSafeUser(user: User): SafeUser {
   return {
@@ -50,7 +50,8 @@ function toSafeUser(user: User): SafeUser {
     preferredRegion: user.preferredRegion,
     notificationBilling: user.notificationBilling,
     notificationProduct: user.notificationProduct,
-    referralCode: user.referralCode
+    referralCode: user.referralCode,
+    creditBalance: Number(user.creditBalance)
   };
 }
 
@@ -149,7 +150,8 @@ export async function signup(input: {
         email,
         fullName,
         passwordHash,
-        referralCode: userReferralCode
+        referralCode: userReferralCode,
+        creditBalance: new Prisma.Decimal(env.DEFAULT_CREDIT_USD.toFixed(2))
       }
     });
 
@@ -285,6 +287,7 @@ export async function loginWithGoogle(input: {
         fullName,
         passwordHash,
         referralCode,
+        creditBalance: new Prisma.Decimal(env.DEFAULT_CREDIT_USD.toFixed(2)),
         authProvider: AuthProvider.GOOGLE,
         googleId: profile.sub,
         emailVerifiedAt: new Date()

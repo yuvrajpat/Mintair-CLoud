@@ -10,11 +10,10 @@ export async function getBillingOverview(userId: string) {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [latestBalance, monthlyDebits, paymentMethods, invoices, records] = await Promise.all([
-    prisma.billingRecord.findFirst({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      select: { balanceAfter: true }
+  const [user, monthlyDebits, paymentMethods, invoices, records] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { creditBalance: true }
     }),
     prisma.billingRecord.aggregate({
       where: { userId, type: BillingType.DEBIT, createdAt: { gte: startOfMonth } },
@@ -26,7 +25,7 @@ export async function getBillingOverview(userId: string) {
   ]);
 
   return {
-    balance: Number(toAmount(latestBalance?.balanceAfter).toFixed(2)),
+    balance: Number(toAmount(user?.creditBalance).toFixed(2)),
     monthlySpend: Number(Math.abs(toAmount(monthlyDebits._sum.amount)).toFixed(2)),
     paymentMethods,
     invoices: invoices.map((invoice) => ({

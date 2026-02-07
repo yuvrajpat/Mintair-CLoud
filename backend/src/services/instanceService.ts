@@ -10,13 +10,12 @@ function shouldFailProvisioning(instanceId: string): boolean {
 }
 
 async function getCurrentBalance(userId: string): Promise<number> {
-  const latest = await prisma.billingRecord.findFirst({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    select: { balanceAfter: true }
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { creditBalance: true }
   });
 
-  return Number(latest?.balanceAfter ?? 0);
+  return Number(user?.creditBalance ?? 0);
 }
 
 function mapInstance(instance: {
@@ -193,6 +192,13 @@ export async function deployInstance(
         description: `Deployment hold for ${created.name}`,
         amount: new Prisma.Decimal((-firstHourCost).toFixed(2)),
         balanceAfter: new Prisma.Decimal(nextBalance.toFixed(2))
+      }
+    });
+
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        creditBalance: new Prisma.Decimal(nextBalance.toFixed(2))
       }
     });
 

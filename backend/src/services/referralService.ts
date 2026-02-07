@@ -59,13 +59,12 @@ export async function rewardReferralForFirstDeployment(userId: string): Promise<
     return;
   }
 
-  const latestBalance = await prisma.billingRecord.findFirst({
-    where: { userId: referral.referrerId },
-    orderBy: { createdAt: "desc" },
-    select: { balanceAfter: true }
+  const referrer = await prisma.user.findUnique({
+    where: { id: referral.referrerId },
+    select: { creditBalance: true }
   });
 
-  const newBalance = Number(latestBalance?.balanceAfter ?? 0) + env.REFERRAL_REWARD_USD;
+  const newBalance = Number(referrer?.creditBalance ?? 0) + env.REFERRAL_REWARD_USD;
 
   await prisma.$transaction(async (tx) => {
     await tx.referral.update({
@@ -84,6 +83,13 @@ export async function rewardReferralForFirstDeployment(userId: string): Promise<
         description: `Referral reward for code ${referral.code}`,
         amount: new Prisma.Decimal(env.REFERRAL_REWARD_USD.toFixed(2)),
         balanceAfter: new Prisma.Decimal(newBalance.toFixed(2))
+      }
+    });
+
+    await tx.user.update({
+      where: { id: referral.referrerId },
+      data: {
+        creditBalance: new Prisma.Decimal(newBalance.toFixed(2))
       }
     });
   });

@@ -17,7 +17,8 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     fullName: user.fullName,
     onboardingCompleted: user.onboardingCompleted,
     preferredRegion: user.preferredRegion,
-    emailVerifiedAt: user.emailVerifiedAt
+    emailVerifiedAt: user.emailVerifiedAt,
+    creditBalance: user.creditBalance
   };
   req.sessionToken = sessionToken;
   next();

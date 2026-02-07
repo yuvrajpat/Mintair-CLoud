@@ -56,6 +56,15 @@ const envSchema = z.object({
   GOOGLE_CALLBACK_URL: z.string().url().optional(),
   GOOGLE_SUCCESS_REDIRECT: z.string().url().optional(),
   GOOGLE_ERROR_REDIRECT: z.string().url().optional(),
+  COPPERX_API_BASE_URL: z.string().url().default("https://income-api.copperx.io"),
+  COPPERX_API_KEY: z.string().optional(),
+  COPPERX_WEBHOOK_SECRET: z.string().optional(),
+  COPPERX_CHECKOUT_SUCCESS_URL: z.string().url().optional(),
+  COPPERX_CHECKOUT_CANCEL_URL: z.string().url().optional(),
+  COPPERX_ALLOW_FIAT: z
+    .string()
+    .optional()
+    .transform((value) => value === "true"),
   EMAIL_FROM: z.string().default("no-reply@mintair.cloud"),
   DEV_EMAIL_PREVIEW: z
     .string()

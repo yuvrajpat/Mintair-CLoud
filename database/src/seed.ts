@@ -107,6 +107,8 @@ async function main() {
   await prisma.aPIKey.deleteMany();
   await prisma.authToken.deleteMany();
   await prisma.session.deleteMany();
+  await prisma.creditTopUp.deleteMany();
+  await prisma.webhookEvent.deleteMany();
   await prisma.referral.deleteMany();
   await prisma.marketplaceItem.deleteMany();
   await prisma.user.deleteMany();
@@ -122,6 +124,7 @@ async function main() {
       email: "alice@mintair.dev",
       passwordHash,
       fullName: "Alice Park",
+      creditBalance: new Prisma.Decimal("400.00"),
       emailVerifiedAt: new Date(),
       onboardingCompleted: true,
       onboardingUserType: "Startup",
@@ -137,6 +140,7 @@ async function main() {
       email: "bob@mintair.dev",
       passwordHash,
       fullName: "Bob Singh",
+      creditBalance: new Prisma.Decimal("100.00"),
       emailVerifiedAt: new Date(),
       onboardingCompleted: true,
       onboardingUserType: "Developer",
@@ -289,6 +293,17 @@ async function main() {
         currency: "USD"
       }
     ]
+  });
+
+  await prisma.billingRecord.create({
+    data: {
+      userId: bob.id,
+      type: BillingType.CREDIT,
+      description: "Starter credit",
+      amount: new Prisma.Decimal("100.00"),
+      balanceAfter: new Prisma.Decimal("100.00"),
+      currency: "USD"
+    }
   });
 
   await prisma.paymentMethod.create({

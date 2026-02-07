@@ -1,10 +1,17 @@
-import type { User } from "@prisma/client";
-
 declare global {
   namespace Express {
     interface Request {
-      authUser?: Pick<User, "id" | "email" | "fullName" | "onboardingCompleted" | "preferredRegion" | "emailVerifiedAt">;
+      authUser?: {
+        id: string;
+        email: string;
+        fullName: string;
+        onboardingCompleted: boolean;
+        preferredRegion: string | null;
+        emailVerifiedAt: Date | null;
+        creditBalance: number;
+      };
       sessionToken?: string;
+      rawBody?: string;
     }
   }
 }

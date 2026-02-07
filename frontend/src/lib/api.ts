@@ -157,6 +157,12 @@ export const api = {
   billing: {
     overview: () => apiFetch<unknown>("/billing/overview"),
     usage: (groupBy: "instance" | "gpu" | "region") => apiFetch<unknown>(`/billing/usage?groupBy=${groupBy}`),
+    credits: () => apiFetch<{ balance: number; recentTopUps: unknown[] }>("/billing/credits"),
+    createCreditsCheckout: (input: { amountUsd: number }) =>
+      apiFetch<{ topUpId: string; checkoutUrl: string }>("/billing/credits/checkout", {
+        method: "POST",
+        body: JSON.stringify(input)
+      }),
     addPaymentMethod: (input: {
       type: "CARD" | "BANK";
       provider: string;
