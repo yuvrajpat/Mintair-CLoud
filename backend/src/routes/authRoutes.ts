@@ -17,13 +17,19 @@ import {
 
 const router = Router();
 
-function setSessionCookie(res: Response, token: string) {
-  res.cookie(env.SESSION_COOKIE_NAME, token, {
+function getSessionCookieOptions() {
+  const isProduction = env.NODE_ENV === "production";
+
+  return {
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
     maxAge: env.SESSION_TTL_HOURS * 60 * 60 * 1000
-  });
+  };
+}
+
+function setSessionCookie(res: Response, token: string) {
+  res.cookie(env.SESSION_COOKIE_NAME, token, getSessionCookieOptions());
 }
 
 router.post(
@@ -71,7 +77,8 @@ router.post(
   requireAuth,
   asyncHandler(async (req, res) => {
     await logout(req.sessionToken);
-    res.clearCookie(env.SESSION_COOKIE_NAME);
+    const { maxAge: _maxAge, ...clearCookieOptions } = getSessionCookieOptions();
+    res.clearCookie(env.SESSION_COOKIE_NAME, clearCookieOptions);
     res.json({ message: "Logged out successfully." });
   })
 );
