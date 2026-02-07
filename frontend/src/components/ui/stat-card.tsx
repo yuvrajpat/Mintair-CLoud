@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "./card";
+import { useTheme } from "../theme-provider";
+import { GlowingEffect } from "./glowing-effect";
 
 type StatCardProps = {
   label: string;
@@ -42,6 +44,7 @@ function useAnimatedValue(target?: number, duration = 460): number | null {
 }
 
 export function StatCard({ label, value, hint, secondary, numericValue, formatter }: StatCardProps) {
+  const { resolvedTheme } = useTheme();
   const animatedValue = useAnimatedValue(numericValue);
 
   const displayValue = useMemo(() => {
@@ -60,6 +63,9 @@ export function StatCard({ label, value, hint, secondary, numericValue, formatte
 
   return (
     <Card className="group metric-enter relative overflow-hidden p-5">
+      {resolvedTheme === "dark" ? (
+        <GlowingEffect spread={26} glow={false} disabled={false} proximity={54} inactiveZone={0.2} borderWidth={1.4} />
+      ) : null}
       <div className="spectrum-bar absolute inset-x-0 top-0 h-1" />
       <p className="eyebrow text-ink-500">{label}</p>
       <p className="mt-3 text-[1.75rem] leading-none text-ink-900 md:text-[1.95rem]">{displayValue}</p>

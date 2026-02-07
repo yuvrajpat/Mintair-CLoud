@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
       </form>
 
       {tokenPreview ? (
-        <div className="mt-4 border border-brand-gray bg-white p-3 text-sm">
+        <div className="mt-4 border border-brand-gray bg-brand-white p-3 text-sm">
           <p className="font-medium text-ink-800">Development reset token</p>
           <p className="mt-1 break-all text-ink-600">{tokenPreview}</p>
           <div className="mt-2">

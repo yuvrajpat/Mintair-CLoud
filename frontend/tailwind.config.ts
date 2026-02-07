@@ -1,41 +1,44 @@
 import type { Config } from "tailwindcss";
 
+const withOpacity = (variable: string) => `rgb(var(${variable}) / <alpha-value>)`;
+
 const config: Config = {
+  darkMode: ["selector", '[data-theme="dark"]'],
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
         brand: {
-          charcoal: "#191B20",
-          white: "#FFFFFF",
-          gray: "#DADADA",
-          blue: "#2563EB",
-          cyan: "#06B6D4",
-          lime: "#D8FF70"
+          charcoal: withOpacity("--color-brand-charcoal"),
+          white: withOpacity("--color-brand-white"),
+          gray: withOpacity("--color-brand-gray"),
+          blue: withOpacity("--color-brand-blue"),
+          cyan: withOpacity("--color-brand-cyan"),
+          lime: withOpacity("--color-brand-lime")
         },
         mint: {
-          50: "#eff4ff",
-          100: "#dbe6ff",
-          200: "#bdcfff",
-          300: "#98b3ff",
-          400: "#6f91ff",
-          500: "#4a73f1",
-          600: "#2563EB",
-          700: "#1d4ed8",
-          800: "#1e40af",
-          900: "#1e3a8a"
+          50: withOpacity("--color-mint-50"),
+          100: withOpacity("--color-mint-100"),
+          200: withOpacity("--color-mint-200"),
+          300: withOpacity("--color-mint-300"),
+          400: withOpacity("--color-mint-400"),
+          500: withOpacity("--color-mint-500"),
+          600: withOpacity("--color-mint-600"),
+          700: withOpacity("--color-mint-700"),
+          800: withOpacity("--color-mint-800"),
+          900: withOpacity("--color-mint-900")
         },
         ink: {
-          50: "#f8f8f9",
-          100: "#efeff1",
-          200: "#e1e2e5",
-          300: "#c6c8cd",
-          400: "#9c9fa8",
-          500: "#6f7480",
-          600: "#4b5563",
-          700: "#343a45",
-          800: "#262a33",
-          900: "#191B20"
+          50: withOpacity("--color-ink-50"),
+          100: withOpacity("--color-ink-100"),
+          200: withOpacity("--color-ink-200"),
+          300: withOpacity("--color-ink-300"),
+          400: withOpacity("--color-ink-400"),
+          500: withOpacity("--color-ink-500"),
+          600: withOpacity("--color-ink-600"),
+          700: withOpacity("--color-ink-700"),
+          800: withOpacity("--color-ink-800"),
+          900: withOpacity("--color-ink-900")
         }
       },
       boxShadow: {

@@ -140,7 +140,7 @@ export default function SettingsPage() {
               className={`border px-3 py-1.5 font-mono text-[12px] uppercase tracking-[0.08em] transition ${
                 tab === value
                   ? "border-brand-charcoal bg-brand-charcoal text-white"
-                  : "border-brand-gray bg-white text-ink-600 hover:border-brand-charcoal hover:text-brand-blue"
+                  : "border-brand-gray bg-brand-white text-ink-600 hover:border-brand-charcoal hover:text-brand-blue"
               }`}
             >
               {value}

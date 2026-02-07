@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTheme } from "../theme-provider";
 import { Card } from "./card";
 
 type Point = { date: string; value: number };
@@ -22,6 +23,15 @@ export function SimpleChart({ title, points }: { title: string; points: Point[] 
   const paddingY = 24;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const chartId = useMemo(() => `chart-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, [title]);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
+  const axisColor = isDark ? "rgb(70, 79, 96)" : "rgb(218, 218, 218)";
+  const strokeColor = isDark ? "rgba(96, 165, 250, 0.95)" : "rgba(37, 99, 235, 0.95)";
+  const gradientStart = isDark ? "rgba(96, 165, 250, 0.18)" : "rgba(37, 99, 235, 0.24)";
+  const gradientEnd = isDark ? "rgba(34, 211, 238, 0.02)" : "rgba(6, 182, 212, 0.01)";
+  const dotColor = isDark ? "rgba(34, 211, 238, 0.85)" : "rgba(6, 182, 212, 0.78)";
+  const dotActiveColor = isDark ? "rgba(96, 165, 250, 1)" : "rgba(37, 99, 235, 1)";
 
   const normalized = useMemo(() => {
     const values = points.map((point) => point.value);
@@ -47,7 +57,7 @@ export function SimpleChart({ title, points }: { title: string; points: Point[] 
     <Card className="overflow-hidden">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h3 className="text-base text-ink-900">{title}</h3>
-        <span className="border border-brand-gray bg-white px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.06em] text-ink-500">
+        <span className="border border-brand-gray bg-brand-white px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.06em] text-ink-500">
           Last 7 days
         </span>
       </div>
@@ -56,21 +66,21 @@ export function SimpleChart({ title, points }: { title: string; points: Point[] 
         <svg viewBox={`0 0 ${width} ${height}`} className="h-56 w-full">
           <defs>
             <linearGradient id={`${chartId}-area-gradient`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(37, 99, 235, 0.24)" />
-              <stop offset="100%" stopColor="rgba(6, 182, 212, 0.01)" />
+              <stop offset="0%" stopColor={gradientStart} />
+              <stop offset="100%" stopColor={gradientEnd} />
             </linearGradient>
           </defs>
 
           <g>
-            <line x1={paddingX} y1={height - paddingY} x2={width - paddingX} y2={height - paddingY} stroke="rgba(218, 218, 218, 0.95)" />
-            <line x1={paddingX} y1={paddingY} x2={paddingX} y2={height - paddingY} stroke="rgba(218, 218, 218, 0.95)" />
+            <line x1={paddingX} y1={height - paddingY} x2={width - paddingX} y2={height - paddingY} stroke={axisColor} />
+            <line x1={paddingX} y1={paddingY} x2={paddingX} y2={height - paddingY} stroke={axisColor} />
           </g>
 
           {areaPath ? <path d={areaPath} fill={`url(#${chartId}-area-gradient)`} className="origin-left animate-[tabFade_420ms_ease-out]" /> : null}
 
           <g className="origin-left animate-[tabFade_420ms_ease-out]">
             {linePath ? (
-              <path d={linePath} fill="none" stroke="rgba(37,99,235,0.95)" strokeWidth="2.25" strokeLinecap="square" />
+              <path d={linePath} fill="none" stroke={strokeColor} strokeWidth="2.25" strokeLinecap="square" />
             ) : null}
           </g>
 
@@ -86,7 +96,7 @@ export function SimpleChart({ title, points }: { title: string; points: Point[] 
                 cx={point.x}
                 cy={point.y}
                 r={activeIndex === index ? 4 : 3}
-                fill={activeIndex === index ? "rgba(37,99,235,1)" : "rgba(6,182,212,0.78)"}
+                fill={activeIndex === index ? dotActiveColor : dotColor}
                 className="transition-all duration-150"
               />
               <circle cx={point.x} cy={point.y} r={12} fill="transparent" />
@@ -96,7 +106,7 @@ export function SimpleChart({ title, points }: { title: string; points: Point[] 
 
         {activePoint ? (
           <div
-            className="pointer-events-none absolute z-10 border border-brand-gray bg-white px-3 py-2 text-xs transition-all duration-150"
+            className="pointer-events-none absolute z-10 border border-brand-gray bg-brand-white px-3 py-2 text-xs transition-all duration-150"
             style={{
               left: `calc(${(activePoint.x / width) * 100}% - 48px)`,
               top: `calc(${(activePoint.y / height) * 100}% - 54px)`

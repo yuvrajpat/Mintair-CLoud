@@ -27,6 +27,7 @@ import type { CreditsSummary } from "../lib/types";
 import { Button } from "./ui/button";
 import { useSession } from "./session-provider";
 import { Input } from "./ui/input";
+import { ThemeToggle } from "./ui/theme-toggle";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, description: "What matters right now" },
@@ -199,7 +200,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen px-2 py-2 sm:px-3 sm:py-3 md:px-4 md:py-4">
-      <div className="mx-auto flex min-h-[calc(100vh-1rem)] max-w-[1380px] flex-col border border-brand-gray bg-white lg:flex-row">
+      <div className="mx-auto flex min-h-[calc(100vh-1rem)] max-w-[1380px] flex-col border border-brand-gray bg-brand-white lg:flex-row">
         <div
           className={clsx(
             "fixed inset-0 z-40 bg-brand-charcoal/45 transition-opacity duration-200 lg:hidden",
@@ -227,6 +228,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Button size="sm" variant="ghost" className="lg:hidden" onClick={() => router.push("/docs")} aria-label="Open docs">
                 <LifeBuoy className="h-4 w-4" />
               </Button>
+              <ThemeToggle compact />
               <Button
                 size="sm"
                 variant="ghost"
@@ -256,7 +258,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     "group flex items-center justify-between border px-2.5 py-2 text-sm transition-all duration-150",
                     active
                       ? "border-brand-charcoal bg-brand-charcoal text-white"
-                      : "border-transparent text-ink-600 hover:border-brand-gray hover:bg-white hover:text-ink-900"
+                      : "border-transparent text-ink-600 hover:border-brand-gray hover:bg-brand-white hover:text-ink-900"
                   )}
                 >
                   <span className="flex items-center gap-2">
@@ -276,7 +278,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <div className="mt-6 border border-brand-gray bg-white p-3">
+          <div className="mt-6 border border-brand-gray bg-brand-white p-3">
             <p className="eyebrow text-ink-500">Signed in</p>
             <p className="mt-1 truncate text-sm font-medium text-ink-800">{user?.email}</p>
             <Button
@@ -318,6 +320,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Button size="sm" variant="ghost" onClick={() => router.push("/docs")} aria-label="Open docs">
                 <LifeBuoy className="h-4 w-4" />
               </Button>
+              <ThemeToggle compact />
               <Button size="sm" variant="ghost" onClick={() => setCreditsOpen((open) => !open)} aria-label="Open credits">
                 <CircleDollarSign className="h-4 w-4" />
               </Button>
@@ -350,41 +353,44 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   {activeNav?.description ?? "Deploy and manage infrastructure with calm, confident control."}
                 </p>
               </div>
-              <div ref={creditsPanelRef} className="relative ml-auto">
-                <button
-                  type="button"
-                  onClick={() => setCreditsOpen((open) => !open)}
-                  className="inline-flex items-center gap-2 border border-brand-gray bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-brand-charcoal transition-colors hover:border-brand-charcoal"
-                >
-                  <CircleDollarSign className="h-4 w-4" />
-                  Credits {availableCredits.toFixed(2)}
-                </button>
+              <div className="ml-auto flex items-center gap-2">
+                <ThemeToggle />
+                <div ref={creditsPanelRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setCreditsOpen((open) => !open)}
+                    className="inline-flex items-center gap-2 border border-brand-gray bg-brand-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-900 transition-colors hover:border-brand-blue hover:text-brand-blue"
+                  >
+                    <CircleDollarSign className="h-4 w-4" />
+                    Credits {availableCredits.toFixed(2)}
+                  </button>
 
-                {creditsOpen ? (
-                  <div className="absolute right-0 top-[calc(100%+8px)] z-[70] w-[285px] border border-brand-gray bg-white p-3 shadow-sm">
-                    <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">Credit Wallet</p>
-                    <p className="mt-1 text-sm text-ink-700">Available: ${availableCredits.toFixed(2)}</p>
+                  {creditsOpen ? (
+                    <div className="absolute right-0 top-[calc(100%+8px)] z-[70] w-[285px] border border-brand-gray bg-brand-white p-3 shadow-sm">
+                      <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">Credit Wallet</p>
+                      <p className="mt-1 text-sm text-ink-700">Available: ${availableCredits.toFixed(2)}</p>
 
-                    <form className="mt-3 space-y-2" onSubmit={onCreateTopUp}>
-                      <Input
-                        type="number"
-                        min={1}
-                        step="1"
-                        value={topUpAmount}
-                        onChange={(event) => setTopUpAmount(event.target.value)}
-                        placeholder="Amount in USD"
-                      />
-                      <Button type="submit" className="w-full" loading={checkoutMutation.isPending} loadingLabel="Redirecting...">
-                        Add Credits
-                      </Button>
-                    </form>
+                      <form className="mt-3 space-y-2" onSubmit={onCreateTopUp}>
+                        <Input
+                          type="number"
+                          min={1}
+                          step="1"
+                          value={topUpAmount}
+                          onChange={(event) => setTopUpAmount(event.target.value)}
+                          placeholder="Amount in USD"
+                        />
+                        <Button type="submit" className="w-full" loading={checkoutMutation.isPending} loadingLabel="Redirecting...">
+                          Add Credits
+                        </Button>
+                      </form>
 
-                    <p className="mt-2 text-[11px] leading-relaxed text-ink-500">
-                      You will be redirected to CopperX checkout to complete payment.
-                    </p>
+                      <p className="mt-2 text-[11px] leading-relaxed text-ink-500">
+                        You will be redirected to CopperX checkout to complete payment.
+                      </p>
 
-                  </div>
-                ) : null}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </header>

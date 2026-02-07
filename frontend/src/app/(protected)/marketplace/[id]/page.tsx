@@ -159,29 +159,29 @@ function MarketplaceDetailContent() {
               {item.gpuType} by {item.provider} in {item.region}
             </p>
           </div>
-          <div className="border border-brand-gray bg-white px-4 py-3 text-right">
+          <div className="border border-brand-gray bg-brand-white px-4 py-3 text-right">
             <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-brand-blue">Price per hour</p>
-            <p className="mt-1 text-lg text-brand-charcoal">{formatCurrency(item.pricePerHour)}</p>
+            <p className="mt-1 text-lg text-ink-900">{formatCurrency(item.pricePerHour)}</p>
           </div>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2 text-sm md:grid-cols-4">
-          <div className="border border-brand-gray bg-white px-3 py-2 text-ink-700">VRAM: {item.vramGb} GB</div>
-          <div className="border border-brand-gray bg-white px-3 py-2 text-ink-700">CPU: {item.cpuCores} cores</div>
-          <div className="border border-brand-gray bg-white px-3 py-2 text-ink-700">Memory: {item.memoryGb} GB</div>
-          <div className="border border-brand-gray bg-white px-3 py-2 text-ink-700">Storage: {item.storageGb} GB</div>
+          <div className="border border-brand-gray bg-brand-white px-3 py-2 text-ink-700">VRAM: {item.vramGb} GB</div>
+          <div className="border border-brand-gray bg-brand-white px-3 py-2 text-ink-700">CPU: {item.cpuCores} cores</div>
+          <div className="border border-brand-gray bg-brand-white px-3 py-2 text-ink-700">Memory: {item.memoryGb} GB</div>
+          <div className="border border-brand-gray bg-brand-white px-3 py-2 text-ink-700">Storage: {item.storageGb} GB</div>
         </div>
       </Card>
 
       <Card className="border-brand-gray">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="font-mono text-[13px] uppercase tracking-[0.08em] text-ink-700">Launch flow</p>
-          <span className="border border-brand-gray bg-white px-3 py-1 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-500">
+          <span className="border border-brand-gray bg-brand-white px-3 py-1 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-500">
             Step {activeStep} of 5
           </span>
         </div>
 
-        <div className="mt-3 h-1.5 overflow-hidden border border-brand-gray bg-white">
+        <div className="mt-3 h-1.5 overflow-hidden border border-brand-gray bg-brand-white">
           <div className="spectrum-bar h-full transition-[width] duration-300 ease-out" style={{ width: `${progress}%` }} />
         </div>
 
@@ -190,7 +190,7 @@ function MarketplaceDetailContent() {
             <div
               key={label}
               className={`border px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] transition-all ${
-                activeStep >= index + 1 ? "border-brand-charcoal bg-brand-charcoal text-white" : "border-brand-gray bg-white text-ink-400"
+                activeStep >= index + 1 ? "border-brand-charcoal bg-brand-charcoal text-white" : "border-brand-gray bg-brand-white text-ink-400"
               }`}
             >
               {index + 1}. {label}
@@ -259,15 +259,15 @@ function MarketplaceDetailContent() {
         {step === 2 && estimateData ? (
           <div className="deploy-step-enter mt-5 space-y-4">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
-              <div className="border border-brand-gray bg-white px-3 py-3">
+              <div className="border border-brand-gray bg-brand-white px-3 py-3">
                 <p className="text-xs text-ink-500">Compute</p>
                 <p className="mt-1 text-sm font-semibold text-ink-900 metric-enter">{formatCurrency(estimateData.breakdown.compute)}</p>
               </div>
-              <div className="border border-brand-gray bg-white px-3 py-3">
+              <div className="border border-brand-gray bg-brand-white px-3 py-3">
                 <p className="text-xs text-ink-500">Storage</p>
                 <p className="mt-1 text-sm font-semibold text-ink-900 metric-enter">{formatCurrency(estimateData.breakdown.storage)}</p>
               </div>
-              <div className="border border-brand-gray bg-white px-3 py-3">
+              <div className="border border-brand-gray bg-brand-white px-3 py-3">
                 <p className="text-xs text-ink-500">Tax</p>
                 <p className="mt-1 text-sm font-semibold text-ink-900 metric-enter">{formatCurrency(estimateData.breakdown.tax)}</p>
               </div>
@@ -288,7 +288,7 @@ function MarketplaceDetailContent() {
 
         {step === 3 ? (
           <div className="deploy-step-enter mt-5 space-y-4">
-            <div className="border border-brand-gray bg-white px-4 py-4">
+            <div className="border border-brand-gray bg-brand-white px-4 py-4">
               <p className="text-sm text-ink-600">
                 You are deploying <span className="font-semibold text-ink-900">{name}</span> in{" "}
                 <span className="font-semibold text-ink-900">{region}</span> using{" "}
@@ -322,21 +322,21 @@ function MarketplaceDetailContent() {
 
         {step === 4 ? (
           <div className="deploy-step-enter mt-5 space-y-4">
-            <div className="flex items-center gap-3 border border-brand-gray bg-white px-4 py-3">
+            <div className="flex items-center gap-3 border border-brand-gray bg-brand-white px-4 py-3">
               <LoaderCircle className="h-4 w-4 animate-spin text-brand-blue" />
               <p className="text-sm text-ink-600">Provisioning is in progress. We are syncing runtime status in real time.</p>
             </div>
 
             <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-              <div className="border border-brand-gray bg-white px-3 py-3">
+              <div className="border border-brand-gray bg-brand-white px-3 py-3">
                 <p className="text-xs text-ink-500">Profile</p>
                 <p className="mt-1 text-sm font-semibold text-ink-900">{item.gpuType}</p>
               </div>
-              <div className="border border-brand-gray bg-white px-3 py-3">
+              <div className="border border-brand-gray bg-brand-white px-3 py-3">
                 <p className="text-xs text-ink-500">Instance name</p>
                 <p className="mt-1 text-sm font-semibold text-ink-900">{name}</p>
               </div>
-              <div className="border border-brand-gray bg-white px-3 py-3">
+              <div className="border border-brand-gray bg-brand-white px-3 py-3">
                 <p className="text-xs text-ink-500">Region</p>
                 <p className="mt-1 text-sm font-semibold text-ink-900">{region}</p>
               </div>
@@ -357,7 +357,7 @@ function MarketplaceDetailContent() {
           <div className="deploy-step-enter mt-5 space-y-4">
             {deploymentResult?.status === "RUNNING" ? (
               <>
-                <div className="border border-brand-gray bg-white px-4 py-4">
+                <div className="border border-brand-gray bg-brand-white px-4 py-4">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-brand-blue" />
                     <p className="text-sm font-medium text-ink-800">Deployment complete. Your instance is live.</p>
@@ -374,12 +374,12 @@ function MarketplaceDetailContent() {
                 </div>
               </>
             ) : (
-              <div className="border border-rose-300 bg-rose-50 px-4 py-4">
+              <div className="border border-rose-300 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30 px-4 py-4">
                 <div className="flex items-start gap-2">
-                  <ShieldAlert className="mt-0.5 h-4 w-4 text-rose-700" />
+                  <ShieldAlert className="mt-0.5 h-4 w-4 text-rose-700 dark:text-rose-400" />
                   <div className="space-y-3">
-                    <p className="text-sm font-medium text-rose-800">Deployment did not complete successfully.</p>
-                    <p className="text-sm text-rose-700">
+                    <p className="text-sm font-medium text-rose-800 dark:text-rose-300">Deployment did not complete successfully.</p>
+                    <p className="text-sm text-rose-700 dark:text-rose-400">
                       {deploymentResult?.failureReason ?? "Please retry with a different profile or region."}
                     </p>
                     <Button variant="secondary" onClick={() => setStep(1)}>
@@ -394,8 +394,8 @@ function MarketplaceDetailContent() {
         ) : null}
 
         {isFailure && !deploymentResult ? (
-          <div className="mt-5 border border-rose-300 bg-rose-50 px-4 py-3">
-            <div className="flex items-center gap-2 text-sm text-rose-800">
+          <div className="mt-5 border border-rose-300 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30 px-4 py-3">
+            <div className="flex items-center gap-2 text-sm text-rose-800 dark:text-rose-400">
               <Cpu className="h-4 w-4" />
               Unable to retrieve deployment status. Please retry.
             </div>

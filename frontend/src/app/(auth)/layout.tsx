@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSession } from "../../components/session-provider";
 import { Skeleton } from "../../components/ui/skeleton";
+import { ThemeToggle } from "../../components/ui/theme-toggle";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -30,14 +31,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-8">
       <div className="mx-auto max-w-6xl">
         <div className="surface-card border-ink-300 px-4 py-4 sm:px-5 sm:py-5">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-9 w-9 items-center justify-center bg-brand-charcoal font-mono text-xs uppercase tracking-[0.08em] text-brand-lime">
-              MC
-            </span>
-            <div>
-              <p className="font-mono text-[13px] uppercase tracking-[0.08em] text-ink-900">Mintair Cloud</p>
-              <p className="text-sm text-ink-500">Calm infrastructure command center</p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-9 w-9 items-center justify-center bg-brand-charcoal font-mono text-xs uppercase tracking-[0.08em] text-brand-lime">
+                MC
+              </span>
+              <div>
+                <p className="font-mono text-[13px] uppercase tracking-[0.08em] text-ink-900">Mintair Cloud</p>
+                <p className="text-sm text-ink-500">Calm infrastructure command center</p>
+              </div>
             </div>
+            <ThemeToggle compact />
           </div>
         </div>
 

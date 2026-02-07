@@ -133,7 +133,7 @@ export default function OnboardingPage() {
             <h2 className="mt-2 text-2xl text-ink-900">Make Mintair Cloud feel native to your team.</h2>
             <p className="mt-1 text-sm text-ink-500">One minute now saves repeated configuration in every deployment flow.</p>
           </div>
-          <span className="inline-flex items-center border border-brand-gray bg-white px-3 py-1 font-mono text-[12px] uppercase tracking-[0.08em] text-brand-charcoal">
+          <span className="inline-flex items-center border border-brand-gray bg-brand-white px-3 py-1 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-900">
             Step {step} of 4
           </span>
         </div>
@@ -143,7 +143,7 @@ export default function OnboardingPage() {
             <div
               key={label}
               className={`border px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] transition-all ${
-                step >= index + 1 ? "border-brand-charcoal bg-brand-charcoal text-white" : "border-brand-gray bg-white text-ink-400"
+                step >= index + 1 ? "border-brand-charcoal bg-brand-charcoal text-white" : "border-brand-gray bg-brand-white text-ink-400"
               }`}
             >
               {label}
@@ -151,7 +151,7 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        <div className="mt-4 h-1.5 overflow-hidden border border-brand-gray bg-white">
+        <div className="mt-4 h-1.5 overflow-hidden border border-brand-gray bg-brand-white">
           <div className="spectrum-bar h-full transition-[width] duration-300 ease-out" style={{ width: `${completion}%` }} />
         </div>
       </Card>
@@ -168,9 +168,9 @@ export default function OnboardingPage() {
               normal workflow from day one.
             </p>
             <div className="grid grid-cols-1 gap-2 text-sm text-ink-600 md:grid-cols-3">
-              <p className="border border-brand-gray bg-white px-3 py-2">Profile-aware defaults</p>
-              <p className="border border-brand-gray bg-white px-3 py-2">Region pre-selection</p>
-              <p className="border border-brand-gray bg-white px-3 py-2">Faster deployments</p>
+              <p className="border border-brand-gray bg-brand-white px-3 py-2">Profile-aware defaults</p>
+              <p className="border border-brand-gray bg-brand-white px-3 py-2">Region pre-selection</p>
+              <p className="border border-brand-gray bg-brand-white px-3 py-2">Faster deployments</p>
             </div>
             <Button onClick={() => setStep(2)}>
               Continue <ArrowRight className="h-4 w-4" />
@@ -193,7 +193,7 @@ export default function OnboardingPage() {
                   className={`border px-4 py-3 text-left text-sm transition ${
                     option === userType
                       ? "border-brand-charcoal bg-brand-charcoal text-white"
-                      : "border-brand-gray bg-white text-ink-700 hover:border-brand-charcoal"
+                      : "border-brand-gray bg-brand-white text-ink-700 hover:border-brand-charcoal"
                   }`}
                 >
                   {option}
@@ -251,7 +251,7 @@ export default function OnboardingPage() {
             </Select>
             <p className="text-sm text-ink-500">You can always override this per instance, but this will be your default.</p>
 
-            <div className="border border-brand-gray bg-white px-4 py-3 text-sm">
+            <div className="border border-brand-gray bg-brand-white px-4 py-3 text-sm">
               <p className="font-medium text-ink-800">Summary</p>
               <p className="mt-1 text-ink-600">
                 {userType} team focused on {useCase}, defaulting to {region}.

@@ -35,7 +35,7 @@ export function Button({
         variant === "primary" &&
           "border-brand-charcoal bg-brand-charcoal text-white hover:bg-[#252933] active:bg-[#252933] disabled:border-ink-400 disabled:bg-ink-400",
         variant === "secondary" &&
-          "border-brand-gray bg-white font-mono text-[13px] uppercase tracking-[0.08em] text-brand-charcoal hover:border-brand-charcoal hover:bg-[#fafafa]",
+          "border-brand-gray bg-brand-white font-mono text-[13px] uppercase tracking-[0.08em] text-ink-900 hover:border-brand-blue hover:bg-ink-100",
         variant === "danger" && "border-rose-600 bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-700",
         variant === "ghost" && "border-transparent bg-transparent text-ink-700 hover:border-brand-gray hover:bg-ink-100/70 hover:text-ink-900",
         className

@@ -3,9 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Activity, Bot, KeyRound, Rocket } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "../../../components/theme-provider";
 import { Button } from "../../../components/ui/button";
 import { Card } from "../../../components/ui/card";
 import { EmptyState } from "../../../components/ui/empty-state";
+import { GlowingEffect } from "../../../components/ui/glowing-effect";
 import { SimpleChart } from "../../../components/ui/simple-chart";
 import { Skeleton } from "../../../components/ui/skeleton";
 import { StatCard } from "../../../components/ui/stat-card";
@@ -52,11 +54,12 @@ export default function DashboardPage() {
     return <EmptyState title="Could not load dashboard" description="Refresh the page or try again in a moment." icon={Activity} />;
   }
 
+  const { resolvedTheme } = useTheme();
   const { metrics, charts, quickActions } = overviewQuery.data;
 
   return (
     <div className="space-y-4">
-      <Card className="relative flex flex-wrap items-center justify-between gap-4 border-brand-gray bg-white">
+      <Card className="relative flex flex-wrap items-center justify-between gap-4 border-brand-gray bg-brand-white">
         <div className="spectrum-bar absolute inset-x-0 top-0 h-1" />
         <div>
           <p className="eyebrow text-brand-blue">What matters now</p>
@@ -117,8 +120,11 @@ export default function DashboardPage() {
                 <Link
                   key={action.label}
                   href={action.href}
-                  className="group border border-brand-gray bg-white px-3.5 py-3 transition-all duration-200 ease-out hover:-translate-y-[1px] hover:border-brand-charcoal"
+                  className="group relative border border-brand-gray bg-brand-white px-3.5 py-3 transition-all duration-200 ease-out hover:-translate-y-[1px] hover:border-brand-charcoal"
                 >
+                  {resolvedTheme === "dark" ? (
+                    <GlowingEffect spread={30} glow={false} disabled={false} proximity={48} inactiveZone={0.25} borderWidth={1.2} />
+                  ) : null}
                   <div className="mb-2 inline-flex h-8 w-8 items-center justify-center border border-brand-charcoal bg-brand-charcoal text-brand-lime">
                     <Icon className="h-4 w-4" />
                   </div>

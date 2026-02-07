@@ -169,7 +169,7 @@ function InstanceDetailContent() {
         </div>
 
         <div className="relative mt-5 overflow-x-auto">
-          <div className="relative inline-flex min-w-full gap-1 border border-brand-gray bg-white p-1">
+          <div className="relative inline-flex min-w-full gap-1 border border-brand-gray bg-brand-white p-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -201,7 +201,7 @@ function InstanceDetailContent() {
               <p>Provider: {instance.marketplaceItem?.provider ?? "Unknown"}</p>
             </div>
             {instance.failureReason ? (
-              <p className="mt-3 border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700">{instance.failureReason}</p>
+              <p className="mt-3 border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-400">{instance.failureReason}</p>
             ) : null}
           </Card>
         ) : null}
@@ -249,7 +249,7 @@ function InstanceDetailContent() {
             ) : logsQuery.data?.logs.length ? (
               <div className="mt-3 space-y-2">
                 {logsQuery.data.logs.map((log) => (
-                  <div key={log.id} className="border border-brand-gray bg-white px-3 py-3">
+                  <div key={log.id} className="border border-brand-gray bg-brand-white px-3 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-ink-600">{log.level}</p>
                     <p className="mt-1 text-sm text-ink-700">{log.message}</p>
                     <p className="mt-1 text-xs text-ink-500">{formatDate(log.createdAt)}</p>
@@ -257,7 +257,7 @@ function InstanceDetailContent() {
                 ))}
               </div>
             ) : (
-              <div className="mt-4 flex items-center gap-2 border border-brand-gray bg-white px-3 py-3 text-sm text-ink-500">
+              <div className="mt-4 flex items-center gap-2 border border-brand-gray bg-brand-white px-3 py-3 text-sm text-ink-500">
                 <Terminal className="h-4 w-4" />
                 No logs available yet.
               </div>

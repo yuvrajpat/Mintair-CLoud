@@ -4,9 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Filter, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useTheme } from "../../../components/theme-provider";
 import { Button } from "../../../components/ui/button";
 import { Card } from "../../../components/ui/card";
 import { EmptyState } from "../../../components/ui/empty-state";
+import { GlowingEffect } from "../../../components/ui/glowing-effect";
 import { Input } from "../../../components/ui/input";
 import { Select } from "../../../components/ui/select";
 import { Skeleton } from "../../../components/ui/skeleton";
@@ -15,6 +17,7 @@ import { formatCurrency } from "../../../lib/format";
 import type { MarketplaceItem } from "../../../lib/types";
 
 export default function MarketplacePage() {
+  const { resolvedTheme } = useTheme();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [gpuType, setGpuType] = useState("");
   const [region, setRegion] = useState("");
@@ -79,7 +82,7 @@ export default function MarketplacePage() {
             filtersOpen ? "mt-4 max-h-[420px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="grid grid-cols-1 gap-3 border border-brand-gray bg-white p-3 md:grid-cols-2 xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-3 border border-brand-gray bg-brand-white p-3 md:grid-cols-2 xl:grid-cols-5">
             <Input placeholder="GPU type" value={gpuType} onChange={(event) => setGpuType(event.target.value)} />
             <Select value={region} onChange={(event) => setRegion(event.target.value)}>
               <option value="">All regions</option>
@@ -108,7 +111,7 @@ export default function MarketplacePage() {
 
         {activeFilters.length ? (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 border border-brand-gray bg-white px-2.5 py-1 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-500">
+            <span className="inline-flex items-center gap-1 border border-brand-gray bg-brand-white px-2.5 py-1 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-500">
               <Filter className="h-3.5 w-3.5" /> Active filters
             </span>
             {activeFilters.map((chip) => (
@@ -116,7 +119,7 @@ export default function MarketplacePage() {
                 key={chip.key}
                 type="button"
                 onClick={() => clearFilter(chip.key)}
-                className="inline-flex items-center gap-1 border border-brand-gray bg-white px-2.5 py-1 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-700 transition hover:border-brand-charcoal"
+                className="inline-flex items-center gap-1 border border-brand-gray bg-brand-white px-2.5 py-1 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-700 transition hover:border-brand-charcoal"
               >
                 {chip.label}
                 <X className="h-3.5 w-3.5" />
@@ -138,6 +141,9 @@ export default function MarketplacePage() {
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           {marketplaceQuery.data.items.map((item) => (
             <Card key={item.id} className="group relative flex flex-col justify-between overflow-hidden border-brand-gray p-0">
+              {resolvedTheme === "dark" ? (
+                <GlowingEffect spread={30} glow={false} disabled={false} proximity={48} inactiveZone={0.25} borderWidth={1.2} />
+              ) : null}
               <div className="spectrum-bar absolute inset-x-0 top-0 h-1" />
               <div className="p-5">
                 <div className="flex items-start justify-between gap-3">
@@ -147,7 +153,7 @@ export default function MarketplacePage() {
                       {item.gpuType} • {item.provider}
                     </p>
                   </div>
-                  <p className="border border-brand-gray bg-white px-3 py-1 font-mono text-[13px] uppercase tracking-[0.08em] text-brand-charcoal">
+                  <p className="border border-brand-gray bg-brand-white px-3 py-1 font-mono text-[13px] uppercase tracking-[0.08em] text-ink-900">
                     {formatCurrency(item.pricePerHour)}/hr
                   </p>
                 </div>
@@ -160,7 +166,7 @@ export default function MarketplacePage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between border-t border-brand-gray bg-white px-5 py-3">
+              <div className="flex items-center justify-between border-t border-brand-gray bg-brand-white px-5 py-3">
                 <span className="text-sm text-ink-500">{item.region} • {item.availability} available</span>
 
                 <div className="flex gap-2 opacity-100 transition-all duration-160 lg:translate-y-1 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">

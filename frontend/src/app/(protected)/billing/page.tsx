@@ -132,7 +132,7 @@ export default function BillingPage() {
           {overviewQuery.data.invoices.length ? (
             <div className="mt-3 space-y-2">
               {overviewQuery.data.invoices.map((invoice) => (
-                <div key={invoice.id} className="border border-brand-gray bg-white px-3 py-2 text-sm">
+                <div key={invoice.id} className="border border-brand-gray bg-brand-white px-3 py-2 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-ink-700">{invoice.id.slice(-8)}</span>
                     <span className="border border-brand-gray px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-brand-blue">
@@ -190,7 +190,7 @@ export default function BillingPage() {
                     <p className="text-xs text-ink-400">{formatDate(record.createdAt)}</p>
                   </div>
                   <div className="text-right">
-                    <p className={record.amount < 0 ? "text-rose-600" : "text-emerald-600"}>{formatCurrency(record.amount)}</p>
+                    <p className={record.amount < 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}>{formatCurrency(record.amount)}</p>
                     <p className="text-xs text-ink-400">Balance: {formatCurrency(record.balanceAfter)}</p>
                   </div>
                 </div>
@@ -213,7 +213,7 @@ export default function BillingPage() {
               {topUpsQuery.data.topUps.map((topUp) => (
                 <div
                   key={topUp.id}
-                  className="flex flex-wrap items-center justify-between gap-3 border border-brand-gray bg-white px-3 py-2"
+                  className="flex flex-wrap items-center justify-between gap-3 border border-brand-gray bg-brand-white px-3 py-2"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-ink-800">{formatCurrency(topUp.amountUsd)}</p>

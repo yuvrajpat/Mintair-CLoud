@@ -7,16 +7,73 @@
   --font-display: "PT Serif", "Times New Roman", serif;
   --font-mono-ui: "DM Mono", "SFMono-Regular", Menlo, Consolas, monospace;
 
-  --brand-charcoal: #191b20;
-  --paper-white: #ffffff;
-  --grid-gray: #dadada;
-  --ink-700: #4b5563;
-  --ink-500: rgba(25, 27, 32, 0.8);
-  --ink-300: #a0a8b4;
+  --color-brand-charcoal: 25 27 32;
+  --color-brand-white: 255 255 255;
+  --color-brand-gray: 218 218 218;
+  --color-brand-blue: 37 99 235;
+  --color-brand-cyan: 6 182 212;
+  --color-brand-lime: 216 255 112;
 
-  --brand-blue: #2563eb;
-  --brand-cyan: #06b6d4;
-  --brand-lime: #d8ff70;
+  --color-mint-50: 239 244 255;
+  --color-mint-100: 219 230 255;
+  --color-mint-200: 189 207 255;
+  --color-mint-300: 152 179 255;
+  --color-mint-400: 111 145 255;
+  --color-mint-500: 74 115 241;
+  --color-mint-600: 37 99 235;
+  --color-mint-700: 29 78 216;
+  --color-mint-800: 30 64 175;
+  --color-mint-900: 30 58 138;
+
+  --color-ink-50: 248 248 249;
+  --color-ink-100: 239 239 241;
+  --color-ink-200: 225 226 229;
+  --color-ink-300: 198 200 205;
+  --color-ink-400: 156 159 168;
+  --color-ink-500: 111 116 128;
+  --color-ink-600: 75 85 99;
+  --color-ink-700: 52 58 69;
+  --color-ink-800: 38 42 51;
+  --color-ink-900: 25 27 32;
+
+  --grid-line: 218 218 218;
+  --page-base: 255 255 255;
+  --surface-elevated: 247 249 252;
+}
+
+[data-theme="dark"] {
+  --color-brand-charcoal: 17 21 29;
+  --color-brand-white: 12 14 20;
+  --color-brand-gray: 53 59 71;
+  --color-brand-blue: 96 165 250;
+  --color-brand-cyan: 34 211 238;
+  --color-brand-lime: 199 255 117;
+
+  --color-mint-50: 26 30 39;
+  --color-mint-100: 33 39 52;
+  --color-mint-200: 42 51 70;
+  --color-mint-300: 58 72 100;
+  --color-mint-400: 72 93 133;
+  --color-mint-500: 88 114 167;
+  --color-mint-600: 96 165 250;
+  --color-mint-700: 59 130 246;
+  --color-mint-800: 37 99 235;
+  --color-mint-900: 30 64 175;
+
+  --color-ink-50: 20 23 30;
+  --color-ink-100: 31 36 46;
+  --color-ink-200: 49 56 69;
+  --color-ink-300: 70 79 96;
+  --color-ink-400: 96 107 126;
+  --color-ink-500: 120 132 151;
+  --color-ink-600: 152 165 183;
+  --color-ink-700: 188 197 212;
+  --color-ink-800: 220 226 236;
+  --color-ink-900: 240 244 255;
+
+  --grid-line: 37 44 58;
+  --page-base: 10 12 17;
+  --surface-elevated: 17 21 29;
 }
 
 * {
@@ -29,16 +86,16 @@ body {
   padding: 0;
   min-height: 100%;
   font-family: var(--font-body);
-  color: var(--brand-charcoal);
+  color: rgb(var(--color-ink-900));
   background:
     repeating-linear-gradient(
       0deg,
-      rgba(218, 218, 218, 0.18) 0,
-      rgba(218, 218, 218, 0.18) 1px,
+      rgb(var(--grid-line) / 0.22) 0,
+      rgb(var(--grid-line) / 0.22) 1px,
       transparent 1px,
       transparent 64px
     ),
-    linear-gradient(180deg, var(--paper-white) 0%, var(--paper-white) 100%);
+    linear-gradient(180deg, rgb(var(--page-base)) 0%, rgb(var(--page-base)) 100%);
 }
 
 h1,
@@ -51,7 +108,7 @@ h6 {
   font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: -0.02em;
-  color: var(--brand-charcoal);
+  color: rgb(var(--color-ink-900));
 }
 
 p {
@@ -70,7 +127,7 @@ a {
 }
 
 a:hover {
-  color: var(--brand-blue);
+  color: rgb(var(--color-brand-blue));
 }
 
 button,
@@ -103,18 +160,58 @@ textarea {
 }
 
 .surface-card {
-  border: 1px solid var(--grid-gray);
-  background: var(--paper-white);
+  position: relative;
+  border: 1px solid rgb(var(--color-brand-gray));
+  background: rgb(var(--color-brand-white));
   box-shadow: none;
   backdrop-filter: none;
 }
 
+[data-theme="dark"] .surface-card {
+  border-color: rgb(var(--color-brand-gray) / 0.8);
+  background: linear-gradient(180deg, rgb(var(--color-brand-white)) 0%, rgb(var(--surface-elevated)) 100%);
+}
+
+[data-theme="dark"] .surface-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.24;
+  background: linear-gradient(
+      115deg,
+      rgb(var(--color-brand-blue) / 0) 0%,
+      rgb(var(--color-brand-cyan) / 0.26) 28%,
+      rgb(var(--color-brand-lime) / 0.2) 52%,
+      rgb(var(--color-brand-blue) / 0.3) 74%,
+      rgb(var(--color-brand-blue) / 0) 100%
+    )
+    border-box;
+  background-size: 210% 210%;
+  -webkit-mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: cardBorderSweep 7s linear infinite;
+  transition: opacity 220ms ease-out;
+}
+
+[data-theme="dark"] .surface-card:hover::before {
+  opacity: 0.5;
+}
+
 .hairline {
-  border: 1px solid var(--grid-gray);
+  border: 1px solid rgb(var(--color-brand-gray));
 }
 
 .tech-dots {
-  background-image: radial-gradient(circle, rgba(25, 27, 32, 0.14) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgb(var(--color-ink-900) / 0.14) 1px, transparent 1px);
   background-size: 18px 18px;
 }
 
@@ -123,11 +220,16 @@ textarea {
   font-size: 13px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(25, 27, 32, 0.7);
+  color: rgb(var(--color-ink-700));
 }
 
 .spectrum-bar {
-  background: linear-gradient(90deg, #d8ff70 0%, #06b6d4 50%, #2563eb 100%);
+  background: linear-gradient(
+    90deg,
+    rgb(var(--color-brand-lime)) 0%,
+    rgb(var(--color-brand-cyan)) 50%,
+    rgb(var(--color-brand-blue)) 100%
+  );
 }
 
 [class*="rounded"] {
@@ -199,20 +301,31 @@ textarea {
   animation: shimmer 1.5s ease-out infinite;
 }
 
+[data-theme="dark"] .skeleton-shimmer::after {
+  background: linear-gradient(
+    95deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(199, 255, 117, 0.08) 24%,
+    rgba(34, 211, 238, 0.06) 48%,
+    rgba(96, 165, 250, 0.05) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
 .doc-markdown pre {
   border-radius: 0;
   padding: 1rem;
   overflow-x: auto;
-  background: #191b20;
-  color: #f7fbff;
-  border: 1px solid #343a45;
+  background: rgb(var(--color-ink-50));
+  color: rgb(var(--color-ink-900));
+  border: 1px solid rgb(var(--color-brand-gray));
 }
 
 .doc-markdown code {
   padding: 0.08rem 0.3rem;
   border-radius: 0;
-  background: #f2f4f7;
-  color: #191b20;
+  background: rgb(var(--color-ink-100));
+  color: rgb(var(--color-ink-900));
 }
 
 .doc-markdown pre code {
@@ -340,6 +453,16 @@ textarea {
 @keyframes shimmer {
   to {
     transform: translateX(100%);
+  }
+}
+
+@keyframes cardBorderSweep {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
   }
 }
 

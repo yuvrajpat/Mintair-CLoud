@@ -73,7 +73,7 @@ function LoginPageContent() {
 
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[0.94fr_1.06fr]">
-      <Card className="mx-auto w-full max-w-xl border-brand-gray bg-white">
+      <Card className="mx-auto w-full max-w-xl border-brand-gray bg-brand-white">
         <div className="mb-5">
           <p className="eyebrow text-brand-blue">Welcome back</p>
           <h3 className="mt-2 text-[2rem] leading-[1.1] text-ink-900">Sign in</h3>
@@ -123,7 +123,7 @@ function LoginPageContent() {
           </div>
 
           <Button type="button" variant="secondary" className="w-full" onClick={startGoogleLogin}>
-            <span className="inline-flex h-5 w-5 items-center justify-center border border-brand-charcoal bg-white text-[11px] font-semibold">
+            <span className="inline-flex h-5 w-5 items-center justify-center border border-brand-charcoal bg-brand-white text-[11px] font-semibold">
               G
             </span>
             Continue with Google
@@ -139,7 +139,7 @@ function LoginPageContent() {
           </Link>
         </div>
 
-        <div className="mt-5 border border-brand-gray bg-white px-3 py-2 text-xs text-ink-600">
+        <div className="mt-5 border border-brand-gray bg-brand-white px-3 py-2 text-xs text-ink-600">
           <span className="inline-flex items-center gap-1 font-medium text-ink-700">
             <Sparkles className="h-3.5 w-3.5 text-brand-lime" />
             Tip

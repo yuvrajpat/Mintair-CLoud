@@ -86,8 +86,8 @@ function SignupPageContent() {
       </form>
 
       {verificationTokenPreview ? (
-        <div className="mt-4 border border-brand-gray bg-white p-3 text-sm">
-          <p className="font-medium text-brand-charcoal">Development verification token</p>
+        <div className="mt-4 border border-brand-gray bg-brand-white p-3 text-sm">
+          <p className="font-medium text-ink-900">Development verification token</p>
           <p className="mt-1 break-all text-brand-blue">{verificationTokenPreview}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             <CopyButton value={verificationTokenPreview} label="Copy token" />
