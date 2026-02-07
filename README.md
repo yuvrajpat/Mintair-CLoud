@@ -8,6 +8,7 @@ Mintair Cloud is a full-stack cloud infrastructure and GPU marketplace platform 
 - Backend: Node.js, Express, TypeScript, REST API, service-layer architecture
 - Database: PostgreSQL + Prisma
 - Auth: Email/password + session cookies + email verification + password reset
+  - Optional Google OAuth login
 
 ## Repository Structure
 
@@ -124,6 +125,9 @@ See `.env.example` for full list. Key values:
 - `APP_BASE_URL`
 - `SESSION_COOKIE_NAME`
 - `SESSION_TTL_HOURS`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_CALLBACK_URL`
 - `REFERRAL_REWARD_USD`
 - `DEFAULT_CREDIT_USD`
 

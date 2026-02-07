@@ -3,8 +3,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Lock, Mail, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useSession } from "../../../components/session-provider";
 import { Button } from "../../../components/ui/button";
@@ -13,12 +13,14 @@ import { Input } from "../../../components/ui/input";
 import { api } from "../../../lib/api";
 import type { User } from "../../../lib/types";
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { refreshSession } = useSession();
   const [email, setEmail] = useState("alice@mintair.dev");
   const [password, setPassword] = useState("Mintair123!");
+  const seenGoogleError = useRef<string | null>(null);
 
   const loginMutation = useMutation({
     mutationFn: api.auth.login,
@@ -45,6 +47,28 @@ export default function LoginPage() {
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     loginMutation.mutate({ email, password });
+  };
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (!error || seenGoogleError.current === error) {
+      return;
+    }
+
+    seenGoogleError.current = error;
+    const message =
+      error === "google_state_invalid"
+        ? "Google sign-in expired. Please try again."
+        : error === "google_not_configured"
+          ? "Google sign-in is not configured yet."
+          : error === "google_auth_failed"
+            ? "Google sign-in failed. Please try again."
+            : "Unable to complete Google sign-in.";
+    toast.error(message);
+  }, [searchParams]);
+
+  const startGoogleLogin = () => {
+    window.location.href = "/api/auth/google/start";
   };
 
   return (
@@ -90,6 +114,19 @@ export default function LoginPage() {
           <Button type="submit" className="w-full" loading={loginMutation.isPending} loadingLabel="Signing in">
             Sign in
             <ArrowRight className="h-4 w-4" />
+          </Button>
+
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-brand-gray" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">or</span>
+            <span className="h-px flex-1 bg-brand-gray" />
+          </div>
+
+          <Button type="button" variant="secondary" className="w-full" onClick={startGoogleLogin}>
+            <span className="inline-flex h-5 w-5 items-center justify-center border border-brand-charcoal bg-white text-[11px] font-semibold">
+              G
+            </span>
+            Continue with Google
           </Button>
         </form>
 
@@ -138,5 +175,13 @@ export default function LoginPage() {
         </div>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<Card className="mx-auto max-w-xl text-sm text-ink-500">Loading login…</Card>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

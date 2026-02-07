@@ -1,5 +1,5 @@
 import type { User } from "@prisma/client";
-import { Prisma, TokenType } from "@prisma/client";
+import { AuthProvider, Prisma, TokenType } from "@prisma/client";
 import { nanoid } from "nanoid";
 import { env } from "../config/env";
 import { prisma } from "../lib/prisma";
@@ -7,6 +7,19 @@ import { AppError } from "../utils/appError";
 import { createRawToken, hashToken } from "../utils/crypto";
 import { hashPassword, verifyPassword } from "../utils/password";
 import { addHours } from "../utils/time";
+
+type GoogleUserInfo = {
+  sub: string;
+  email: string;
+  email_verified?: boolean;
+  name?: string;
+};
+
+type GoogleTokenResponse = {
+  access_token?: string;
+  error?: string;
+  error_description?: string;
+};
 
 export type SafeUser = Pick<
   User,
@@ -197,6 +210,102 @@ export async function login(input: {
 
   const sessionToken = await createSession(user.id, input.ipAddress, input.userAgent);
 
+  return {
+    user: toSafeUser(user),
+    sessionToken
+  };
+}
+
+export async function loginWithGoogle(input: {
+  authorizationCode: string;
+  ipAddress?: string;
+  userAgent?: string;
+}): Promise<{ user: SafeUser; sessionToken: string }> {
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.GOOGLE_CALLBACK_URL) {
+    throw new AppError("Google sign-in is not configured.", 500);
+  }
+
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code: input.authorizationCode,
+      client_id: env.GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: env.GOOGLE_CALLBACK_URL,
+      grant_type: "authorization_code"
+    })
+  });
+
+  const tokenPayload = (await tokenResponse.json()) as GoogleTokenResponse;
+  if (!tokenResponse.ok || !tokenPayload.access_token) {
+    throw new AppError("Google sign-in failed while exchanging credentials.", 401);
+  }
+
+  const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+    headers: {
+      Authorization: `Bearer ${tokenPayload.access_token}`
+    }
+  });
+
+  const profile = (await profileResponse.json()) as GoogleUserInfo;
+  if (!profileResponse.ok || !profile.sub || !profile.email || profile.email_verified === false) {
+    throw new AppError("Google account details are incomplete or unverified.", 401);
+  }
+
+  const email = profile.email.trim().toLowerCase();
+  const fullName = profile.name?.trim() || email.split("@")[0] || "Mintair User";
+
+  const existingByGoogle = await prisma.user.findUnique({ where: { googleId: profile.sub } });
+  const existingByEmail = await prisma.user.findUnique({ where: { email } });
+
+  if (existingByGoogle && existingByEmail && existingByGoogle.id !== existingByEmail.id) {
+    throw new AppError("This Google account is already linked to another user.", 409);
+  }
+
+  const user = await prisma.$transaction(async (tx) => {
+    if (existingByGoogle || existingByEmail) {
+      const existing = existingByGoogle ?? existingByEmail!;
+      return tx.user.update({
+        where: { id: existing.id },
+        data: {
+          googleId: existing.googleId ?? profile.sub,
+          emailVerifiedAt: existing.emailVerifiedAt ?? new Date(),
+          fullName: existing.fullName || fullName
+        }
+      });
+    }
+
+    const referralCode = await generateUniqueReferralCode();
+    const passwordHash = await hashPassword(createRawToken(32));
+
+    const created = await tx.user.create({
+      data: {
+        email,
+        fullName,
+        passwordHash,
+        referralCode,
+        authProvider: AuthProvider.GOOGLE,
+        googleId: profile.sub,
+        emailVerifiedAt: new Date()
+      }
+    });
+
+    await tx.billingRecord.create({
+      data: {
+        userId: created.id,
+        type: "CREDIT",
+        description: "Starter credit",
+        amount: new Prisma.Decimal(env.DEFAULT_CREDIT_USD.toFixed(2)),
+        balanceAfter: new Prisma.Decimal(env.DEFAULT_CREDIT_USD.toFixed(2)),
+        currency: "USD"
+      }
+    });
+
+    return created;
+  });
+
+  const sessionToken = await createSession(user.id, input.ipAddress, input.userAgent);
   return {
     user: toSafeUser(user),
     sessionToken

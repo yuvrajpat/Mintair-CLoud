@@ -12,6 +12,11 @@ enum UserRole {
   ADMIN
 }
 
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
 enum InstanceStatus {
   PROVISIONING
   RUNNING
@@ -69,6 +74,8 @@ model User {
   passwordHash         String
   fullName             String
   role                 UserRole        @default(USER)
+  authProvider         AuthProvider    @default(LOCAL)
+  googleId             String?         @unique
   emailVerifiedAt      DateTime?
   onboardingCompleted  Boolean         @default(false)
   onboardingUserType   String?

@@ -51,6 +51,11 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().url().default("http://localhost:3000"),
   APP_BASE_URL: z.string().url().default("http://localhost:3000"),
   API_BASE_URL: z.string().url().default("http://localhost:4000"),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CALLBACK_URL: z.string().url().optional(),
+  GOOGLE_SUCCESS_REDIRECT: z.string().url().optional(),
+  GOOGLE_ERROR_REDIRECT: z.string().url().optional(),
   EMAIL_FROM: z.string().default("no-reply@mintair.cloud"),
   DEV_EMAIL_PREVIEW: z
     .string()
