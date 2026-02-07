@@ -187,22 +187,25 @@ export async function createCopperxCheckoutSession(userId: string, amountUsdInpu
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      lineItems: [
-        {
-          priceData: {
-            currency: "usdc",
-            productData: {
-              name: "Mintair Credits"
-            },
-            unitAmount: amountUsdToUsdcAtomic(amountUsd)
-          },
-          quantity: 1
-        }
-      ],
       mode: "payment",
+      submitType: "pay",
+      lineItems: {
+        data: [
+          {
+            priceData: {
+              currency: "usdc",
+              productData: {
+                name: "Mintair Credits"
+              },
+              unitAmount: amountUsdToUsdcAtomic(amountUsd)
+            },
+            quantity: 1
+          }
+        ]
+      },
       successUrl: getCheckoutRedirectSuccessUrl(),
       cancelUrl: getCheckoutRedirectCancelUrl(),
-      ...(env.COPPERX_ALLOW_FIAT ? { allowFiatPayment: true } : {}),
+      ...(env.COPPERX_ALLOW_FIAT ? { paymentSetting: { allowFiatPayment: true } } : {}),
       metadata: {
         userId,
         topUpAmountUsd: amountUsd.toFixed(2)
