@@ -383,16 +383,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       You will be redirected to CopperX checkout to complete payment.
                     </p>
 
-                    {creditsQuery.data?.recentTopUps?.length ? (
-                      <div className="mt-3 space-y-1 border-t border-brand-gray pt-2">
-                        {creditsQuery.data.recentTopUps.slice(0, 3).map((topUp) => (
-                          <div key={topUp.id} className="flex items-center justify-between text-[11px] text-ink-600">
-                            <span>${topUp.amountUsd.toFixed(2)}</span>
-                            <span className="font-mono uppercase tracking-[0.08em]">{topUp.status}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
                   </div>
                 ) : null}
               </div>

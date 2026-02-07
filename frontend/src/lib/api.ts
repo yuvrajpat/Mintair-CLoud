@@ -163,6 +163,11 @@ export const api = {
         method: "POST",
         body: JSON.stringify(input)
       }),
+    topUps: () => apiFetch<{ topUps: unknown[] }>("/billing/credits/topups"),
+    cancelTopUp: (topUpId: string) =>
+      apiFetch<{ message: string; topUp: unknown }>(`/billing/credits/topups/${topUpId}/cancel`, {
+        method: "POST"
+      }),
     addPaymentMethod: (input: {
       type: "CARD" | "BANK";
       provider: string;

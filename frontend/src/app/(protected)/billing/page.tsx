@@ -12,7 +12,7 @@ import { Select } from "../../../components/ui/select";
 import { StatCard } from "../../../components/ui/stat-card";
 import { api } from "../../../lib/api";
 import { formatCurrency, formatDate } from "../../../lib/format";
-import type { BillingOverview } from "../../../lib/types";
+import type { BillingOverview, CreditTopUp } from "../../../lib/types";
 
 export default function BillingPage() {
   const queryClient = useQueryClient();
@@ -37,6 +37,14 @@ export default function BillingPage() {
       }>
   });
 
+  const topUpsQuery = useQuery({
+    queryKey: ["billing-topups"],
+    queryFn: () =>
+      api.billing.topUps() as Promise<{
+        topUps: CreditTopUp[];
+      }>
+  });
+
   const addPaymentMutation = useMutation({
     mutationFn: api.billing.addPaymentMethod,
     onSuccess: async (data) => {
@@ -46,6 +54,21 @@ export default function BillingPage() {
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : "Could not add payment method";
+      toast.error(message);
+    }
+  });
+
+  const cancelTopUpMutation = useMutation({
+    mutationFn: (topUpId: string) => api.billing.cancelTopUp(topUpId),
+    onSuccess: async (data) => {
+      toast.success(data.message);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["billing-topups"] }),
+        queryClient.invalidateQueries({ queryKey: ["credits-summary"] })
+      ]);
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Could not cancel pending top-up.";
       toast.error(message);
     }
   });
@@ -66,6 +89,21 @@ export default function BillingPage() {
       expYear,
       isDefault: true
     });
+  };
+
+  const getPendingHint = (topUp: CreditTopUp): string | null => {
+    if (topUp.status !== "PENDING" || topUp.canCancel) {
+      return null;
+    }
+
+    const eligibleAt = new Date(topUp.createdAt).getTime() + 60 * 60 * 1000;
+    const remainingMs = eligibleAt - Date.now();
+    if (remainingMs <= 0) {
+      return null;
+    }
+
+    const remainingMinutes = Math.ceil(remainingMs / (60 * 1000));
+    return `Can cancel in ~${remainingMinutes} min`;
   };
 
   if (!overviewQuery.data) {
@@ -160,6 +198,53 @@ export default function BillingPage() {
             </div>
           ) : (
             <p className="mt-3 text-sm text-ink-500">No billing activity yet.</p>
+          )}
+        </Card>
+      </section>
+
+      <section>
+        <Card className="border-brand-gray">
+          <h3 className="text-base text-ink-900">Credit top-ups</h3>
+          <p className="mt-1 text-sm text-ink-500">
+            Paid top-ups reflect in balance automatically. Pending rows can be manually canceled after 1 hour.
+          </p>
+          {topUpsQuery.data?.topUps.length ? (
+            <div className="mt-3 space-y-2">
+              {topUpsQuery.data.topUps.map((topUp) => (
+                <div
+                  key={topUp.id}
+                  className="flex flex-wrap items-center justify-between gap-3 border border-brand-gray bg-white px-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-ink-800">{formatCurrency(topUp.amountUsd)}</p>
+                    <p className="text-xs text-ink-500">{formatDate(topUp.createdAt)}</p>
+                    {getPendingHint(topUp) ? (
+                      <p className="text-xs text-ink-400">{getPendingHint(topUp)}</p>
+                    ) : null}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="border border-brand-gray px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-ink-600">
+                      {topUp.status}
+                    </span>
+                    {topUp.status === "PENDING" ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={!topUp.canCancel}
+                        loading={cancelTopUpMutation.isPending}
+                        loadingLabel="Canceling"
+                        onClick={() => cancelTopUpMutation.mutate(topUp.id)}
+                      >
+                        Cancel
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-ink-500">No credit top-ups yet.</p>
           )}
         </Card>
       </section>

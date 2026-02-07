@@ -2,7 +2,13 @@ import { Router } from "express";
 import { requireAuth } from "../middleware/auth";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { addPaymentMethod, getBillingOverview, getUsageBreakdown } from "../services/billingService";
-import { createCopperxCheckoutSession, getCreditsSummary, handleCopperxWebhook } from "../services/creditsService";
+import {
+  cancelPendingTopUp,
+  createCopperxCheckoutSession,
+  getCreditsSummary,
+  handleCopperxWebhook,
+  listCreditTopUps
+} from "../services/creditsService";
 
 const router = Router();
 
@@ -51,6 +57,26 @@ router.post(
     const { amountUsd } = req.body as { amountUsd: number };
     const result = await createCopperxCheckoutSession(req.authUser!.id, amountUsd);
     res.status(201).json(result);
+  })
+);
+
+router.get(
+  "/credits/topups",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const data = await listCreditTopUps(req.authUser!.id);
+    res.json({ topUps: data });
+  })
+);
+
+router.post(
+  "/credits/topups/:topUpId/cancel",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const rawTopUpId = req.params.topUpId;
+    const topUpId = Array.isArray(rawTopUpId) ? rawTopUpId[0] : rawTopUpId;
+    const topUp = await cancelPendingTopUp(req.authUser!.id, topUpId);
+    res.json({ message: "Pending top-up canceled.", topUp });
   })
 );
 

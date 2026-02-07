@@ -113,6 +113,15 @@ export type CreditsSummary = {
   }>;
 };
 
+export type CreditTopUp = {
+  id: string;
+  amountUsd: number;
+  status: "PENDING" | "COMPLETED" | "FAILED" | "CANCELED" | "EXPIRED";
+  createdAt: string;
+  completedAt: string | null;
+  canCancel: boolean;
+};
+
 export type QuoteRequest = {
   id: string;
   gpuType: string;

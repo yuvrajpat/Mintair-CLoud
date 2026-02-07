@@ -23,12 +23,10 @@ type CopperxCheckoutResponse = {
 type CopperxWebhookEvent = {
   id?: string;
   type?: string;
-  data?: {
-    id?: string;
-    checkoutSessionId?: string;
-    sessionId?: string;
-  };
+  data?: Record<string, unknown>;
 };
+
+const MANUAL_CANCEL_WINDOW_MS = 60 * 60 * 1000;
 
 function toAmount(value: Prisma.Decimal | number | null | undefined): number {
   if (value === null || value === undefined) {
@@ -101,6 +99,20 @@ function extractFirstString(payload: unknown, candidates: string[][]): string | 
   return null;
 }
 
+function extractFirstNumber(payload: unknown, candidates: string[][]): number | null {
+  const value = extractFirstString(payload, candidates);
+  if (!value) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
+
 function normalizeSignature(headerValue: string): string {
   const trimmed = headerValue.trim();
   if (!trimmed.includes("=")) {
@@ -153,12 +165,21 @@ function mapFailureStatus(eventType: string): CreditTopUpStatus | null {
     return CreditTopUpStatus.FAILED;
   }
 
+  if (normalized.includes("failure") || normalized.includes("declined")) {
+    return CreditTopUpStatus.FAILED;
+  }
+
   return null;
 }
 
 function isSuccessEvent(eventType: string): boolean {
   const normalized = eventType.toLowerCase();
-  return normalized.includes("paid") || normalized.includes("completed");
+  return (
+    normalized.includes("paid") ||
+    normalized.includes("completed") ||
+    normalized.includes("success") ||
+    normalized.includes("succeeded")
+  );
 }
 
 export async function getCreditsSummary(userId: string) {
@@ -188,6 +209,82 @@ export async function getCreditsSummary(userId: string) {
       status: entry.status,
       createdAt: entry.createdAt
     }))
+  };
+}
+
+export async function listCreditTopUps(userId: string) {
+  const threshold = new Date(Date.now() - MANUAL_CANCEL_WINDOW_MS);
+  const rows = await prisma.creditTopUp.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    take: 30,
+    select: {
+      id: true,
+      amountUsd: true,
+      status: true,
+      createdAt: true,
+      completedAt: true
+    }
+  });
+
+  return rows.map((row) => ({
+    id: row.id,
+    amountUsd: Number(row.amountUsd),
+    status: row.status,
+    createdAt: row.createdAt,
+    completedAt: row.completedAt,
+    canCancel: row.status === CreditTopUpStatus.PENDING && row.createdAt <= threshold
+  }));
+}
+
+export async function cancelPendingTopUp(userId: string, topUpId: string) {
+  const threshold = new Date(Date.now() - MANUAL_CANCEL_WINDOW_MS);
+  const topUp = await prisma.creditTopUp.findFirst({
+    where: {
+      id: topUpId,
+      userId
+    },
+    select: {
+      id: true,
+      status: true,
+      createdAt: true
+    }
+  });
+
+  if (!topUp) {
+    throw new AppError("Top-up record not found.", 404);
+  }
+
+  if (topUp.status !== CreditTopUpStatus.PENDING) {
+    throw new AppError("Only pending top-ups can be canceled.", 400);
+  }
+
+  if (topUp.createdAt > threshold) {
+    throw new AppError("Pending top-up can be canceled only after 1 hour.", 400);
+  }
+
+  const updated = await prisma.creditTopUp.update({
+    where: { id: topUp.id },
+    data: {
+      status: CreditTopUpStatus.CANCELED,
+      metadata: {
+        canceledManually: true,
+        canceledAt: new Date().toISOString()
+      } as Prisma.JsonObject
+    },
+    select: {
+      id: true,
+      amountUsd: true,
+      status: true,
+      createdAt: true
+    }
+  });
+
+  return {
+    id: updated.id,
+    amountUsd: Number(updated.amountUsd),
+    status: updated.status,
+    createdAt: updated.createdAt
   };
 }
 
@@ -313,7 +410,26 @@ export async function handleCopperxWebhook(payload: string, signatureHeader: str
   const providerSessionId = extractFirstString(event, [
     ["data", "checkoutSessionId"],
     ["data", "sessionId"],
-    ["data", "id"]
+    ["data", "id"],
+    ["data", "object", "id"],
+    ["data", "object", "checkoutSessionId"],
+    ["data", "object", "sessionId"],
+    ["data", "object", "checkoutSession", "id"],
+    ["data", "object", "session", "id"]
+  ]);
+  const topUpIdFromMetadata = extractFirstString(event, [
+    ["data", "metadata", "topUpId"],
+    ["data", "metadata", "topupId"],
+    ["data", "object", "metadata", "topUpId"],
+    ["data", "object", "metadata", "topupId"]
+  ]);
+  const userIdFromMetadata = extractFirstString(event, [
+    ["data", "metadata", "userId"],
+    ["data", "object", "metadata", "userId"]
+  ]);
+  const amountFromMetadata = extractFirstNumber(event, [
+    ["data", "metadata", "topUpAmountUsd"],
+    ["data", "object", "metadata", "topUpAmountUsd"]
   ]);
 
   await prisma.$transaction(async (tx) => {
@@ -326,21 +442,65 @@ export async function handleCopperxWebhook(payload: string, signatureHeader: str
       }
     });
 
-    if (!providerSessionId) {
-      return;
-    }
+    let topUp = null as
+      | {
+          id: string;
+          userId: string;
+          amountUsd: Prisma.Decimal;
+          status: CreditTopUpStatus;
+          user: {
+            id: string;
+            creditBalance: Prisma.Decimal;
+          };
+        }
+      | null;
 
-    const topUp = await tx.creditTopUp.findUnique({
-      where: { providerSessionId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            creditBalance: true
+    if (topUpIdFromMetadata) {
+      topUp = await tx.creditTopUp.findUnique({
+        where: { id: topUpIdFromMetadata },
+        include: {
+          user: {
+            select: {
+              id: true,
+              creditBalance: true
+            }
           }
         }
-      }
-    });
+      });
+    }
+
+    if (!topUp && providerSessionId) {
+      topUp = await tx.creditTopUp.findUnique({
+        where: { providerSessionId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              creditBalance: true
+            }
+          }
+        }
+      });
+    }
+
+    if (!topUp && userIdFromMetadata && amountFromMetadata !== null) {
+      topUp = await tx.creditTopUp.findFirst({
+        where: {
+          userId: userIdFromMetadata,
+          status: CreditTopUpStatus.PENDING,
+          amountUsd: new Prisma.Decimal(amountFromMetadata.toFixed(2))
+        },
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: {
+            select: {
+              id: true,
+              creditBalance: true
+            }
+          }
+        }
+      });
+    }
 
     if (!topUp) {
       return;
