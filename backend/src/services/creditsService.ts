@@ -12,9 +12,11 @@ type CopperxCheckoutResponse = {
     url?: string;
     hostedUrl?: string;
   };
-  error?: {
-    message?: string;
-  };
+  error?:
+    | {
+        message?: string;
+      }
+    | string;
   message?: string;
 };
 
@@ -54,6 +56,29 @@ function getCheckoutRedirectCancelUrl(): string {
 
 function amountUsdToUsdcAtomic(amountUsd: number): string {
   return String(Math.round(amountUsd * 1_000_000));
+}
+
+function readCopperxErrorMessage(payload: CopperxCheckoutResponse | null): string | null {
+  if (!payload) {
+    return null;
+  }
+
+  if (typeof payload.error === "string" && payload.error.trim()) {
+    return payload.error.trim();
+  }
+
+  if (payload.error && typeof payload.error === "object" && typeof payload.error.message === "string") {
+    const message = payload.error.message.trim();
+    if (message) {
+      return message;
+    }
+  }
+
+  if (typeof payload.message === "string" && payload.message.trim()) {
+    return payload.message.trim();
+  }
+
+  return null;
 }
 
 function extractFirstString(payload: unknown, candidates: string[][]): string | null {
@@ -184,6 +209,7 @@ export async function createCopperxCheckoutSession(userId: string, amountUsdInpu
     method: "POST",
     headers: {
       Authorization: `Bearer ${env.COPPERX_API_KEY}`,
+      "x-api-key": env.COPPERX_API_KEY,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
@@ -216,7 +242,15 @@ export async function createCopperxCheckoutSession(userId: string, amountUsdInpu
   const payload = (await response.json().catch(() => null)) as CopperxCheckoutResponse | null;
 
   if (!response.ok || !payload) {
-    const message = payload?.error?.message ?? payload?.message ?? "Failed to create CopperX checkout session.";
+    const upstreamMessage = readCopperxErrorMessage(payload);
+    if (response.status === 401 || response.status === 403) {
+      throw new AppError(
+        `CopperX authentication failed (${response.status}). Check COPPERX_API_KEY in backend env (must be the full unmasked secret key).${upstreamMessage ? ` Upstream: ${upstreamMessage}` : ""}`,
+        502
+      );
+    }
+
+    const message = upstreamMessage ?? "Failed to create CopperX checkout session.";
     throw new AppError(message, 502);
   }
 
