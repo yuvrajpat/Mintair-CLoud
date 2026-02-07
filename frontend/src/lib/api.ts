@@ -29,32 +29,13 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return payload as T;
 }
 
-function normalizeBaseUrl(value: string): string {
-  return value.endsWith("/") ? value.slice(0, -1) : value;
-}
-
 function resolveApiBaseUrl(): string {
-  const fallback = normalizeBaseUrl(API_BASE_URL);
-
   if (typeof window === "undefined") {
-    return fallback;
+    return API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
   }
 
-  try {
-    const configured = new URL(fallback);
-    const currentHost = window.location.hostname;
-
-    const isConfiguredLocal = configured.hostname === "localhost" || configured.hostname === "127.0.0.1";
-    const isCurrentLocal = currentHost === "localhost" || currentHost === "127.0.0.1";
-
-    if (isConfiguredLocal && isCurrentLocal && configured.hostname !== currentHost) {
-      configured.hostname = currentHost;
-    }
-
-    return normalizeBaseUrl(configured.toString());
-  } catch {
-    return fallback;
-  }
+  // Browser requests should stay same-origin so cookies are first-party.
+  return "";
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
