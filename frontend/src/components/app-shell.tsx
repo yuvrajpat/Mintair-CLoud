@@ -328,70 +328,67 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <header className="surface-card mb-4 border-ink-300 px-4 py-4 sm:px-5 lg:mb-5">
-            <nav key={pathname} className="crumb-enter flex items-center gap-1 text-xs text-ink-500">
-              {breadcrumbs.map((crumb, index) => (
-                <span key={crumb.href} className="inline-flex items-center gap-1">
-                  {index === breadcrumbs.length - 1 ? (
-                    <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-ink-700">{crumb.label}</span>
-                  ) : (
-                    <Link href={crumb.href} className="font-mono text-[12px] uppercase tracking-[0.08em] transition-colors hover:text-brand-blue">
-                      {crumb.label}
-                    </Link>
-                  )}
-                  {index < breadcrumbs.length - 1 ? <ChevronRight className="h-3 w-3 text-ink-400" /> : null}
-                </span>
-              ))}
-            </nav>
+            <div className="flex items-center justify-between gap-3">
+              <nav key={pathname} className="crumb-enter flex items-center gap-1 text-xs text-ink-500">
+                {breadcrumbs.map((crumb, index) => (
+                  <span key={crumb.href} className="inline-flex items-center gap-1">
+                    {index === breadcrumbs.length - 1 ? (
+                      <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-ink-700">{crumb.label}</span>
+                    ) : (
+                      <Link href={crumb.href} className="font-mono text-[12px] uppercase tracking-[0.08em] transition-colors hover:text-brand-blue">
+                        {crumb.label}
+                      </Link>
+                    )}
+                    {index < breadcrumbs.length - 1 ? <ChevronRight className="h-3 w-3 text-ink-400" /> : null}
+                  </span>
+                ))}
+              </nav>
 
-            <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="eyebrow text-brand-blue">Workspace</p>
-                <h1 className="mt-2 text-[1.6rem] leading-tight text-ink-900 sm:text-[1.8rem] lg:text-[1.95rem]">
-                  {activeNav?.label ?? "Console"}
-                </h1>
-                <p className="mt-1 text-sm leading-relaxed text-ink-500">
-                  {activeNav?.description ?? "Deploy and manage infrastructure with calm, confident control."}
-                </p>
+              <div ref={creditsPanelRef} className="relative hidden lg:block">
+                <button
+                  type="button"
+                  onClick={() => setCreditsOpen((open) => !open)}
+                  className="inline-flex items-center gap-2 border border-brand-gray bg-brand-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-900 transition-colors hover:border-brand-blue hover:text-brand-blue"
+                >
+                  <CircleDollarSign className="h-4 w-4" />
+                  Credits {availableCredits.toFixed(2)}
+                </button>
+
+                {creditsOpen ? (
+                  <div className="absolute right-0 top-[calc(100%+8px)] z-[70] w-[285px] border border-brand-gray bg-brand-white p-3 shadow-sm">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">Credit Wallet</p>
+                    <p className="mt-1 text-sm text-ink-700">Available: ${availableCredits.toFixed(2)}</p>
+
+                    <form className="mt-3 space-y-2" onSubmit={onCreateTopUp}>
+                      <Input
+                        type="number"
+                        min={1}
+                        step="1"
+                        value={topUpAmount}
+                        onChange={(event) => setTopUpAmount(event.target.value)}
+                        placeholder="Amount in USD"
+                      />
+                      <Button type="submit" className="w-full" loading={checkoutMutation.isPending} loadingLabel="Redirecting...">
+                        Add Credits
+                      </Button>
+                    </form>
+
+                    <p className="mt-2 text-[11px] leading-relaxed text-ink-500">
+                      You will be redirected to CopperX checkout to complete payment.
+                    </p>
+                  </div>
+                ) : null}
               </div>
-              <div className="ml-auto flex items-center gap-2">
-                <ThemeToggle />
-                <div ref={creditsPanelRef} className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setCreditsOpen((open) => !open)}
-                    className="inline-flex items-center gap-2 border border-brand-gray bg-brand-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-900 transition-colors hover:border-brand-blue hover:text-brand-blue"
-                  >
-                    <CircleDollarSign className="h-4 w-4" />
-                    Credits {availableCredits.toFixed(2)}
-                  </button>
+            </div>
 
-                  {creditsOpen ? (
-                    <div className="absolute right-0 top-[calc(100%+8px)] z-[70] w-[285px] border border-brand-gray bg-brand-white p-3 shadow-sm">
-                      <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">Credit Wallet</p>
-                      <p className="mt-1 text-sm text-ink-700">Available: ${availableCredits.toFixed(2)}</p>
-
-                      <form className="mt-3 space-y-2" onSubmit={onCreateTopUp}>
-                        <Input
-                          type="number"
-                          min={1}
-                          step="1"
-                          value={topUpAmount}
-                          onChange={(event) => setTopUpAmount(event.target.value)}
-                          placeholder="Amount in USD"
-                        />
-                        <Button type="submit" className="w-full" loading={checkoutMutation.isPending} loadingLabel="Redirecting...">
-                          Add Credits
-                        </Button>
-                      </form>
-
-                      <p className="mt-2 text-[11px] leading-relaxed text-ink-500">
-                        You will be redirected to CopperX checkout to complete payment.
-                      </p>
-
-                    </div>
-                  ) : null}
-                </div>
-              </div>
+            <div className="mt-3">
+              <p className="eyebrow text-brand-blue">Workspace</p>
+              <h1 className="mt-2 text-[1.6rem] leading-tight text-ink-900 sm:text-[1.8rem] lg:text-[1.95rem]">
+                {activeNav?.label ?? "Console"}
+              </h1>
+              <p className="mt-1 text-sm leading-relaxed text-ink-500">
+                {activeNav?.description ?? "Deploy and manage infrastructure with calm, confident control."}
+              </p>
             </div>
           </header>
 
