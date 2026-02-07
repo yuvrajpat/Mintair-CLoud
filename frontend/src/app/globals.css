@@ -1,0 +1,366 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-body: "DM Sans", "Avenir Next", "Segoe UI", sans-serif;
+  --font-display: "PT Serif", "Times New Roman", serif;
+  --font-mono-ui: "DM Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --brand-charcoal: #191b20;
+  --paper-white: #ffffff;
+  --grid-gray: #dadada;
+  --ink-700: #4b5563;
+  --ink-500: rgba(25, 27, 32, 0.8);
+  --ink-300: #a0a8b4;
+
+  --brand-blue: #2563eb;
+  --brand-cyan: #06b6d4;
+  --brand-lime: #d8ff70;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: var(--font-body);
+  color: var(--brand-charcoal);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(218, 218, 218, 0.18) 0,
+      rgba(218, 218, 218, 0.18) 1px,
+      transparent 1px,
+      transparent 64px
+    ),
+    linear-gradient(180deg, var(--paper-white) 0%, var(--paper-white) 100%);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--brand-charcoal);
+}
+
+p {
+  margin: 0;
+}
+
+code,
+pre {
+  font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 200ms ease-out;
+}
+
+a:hover {
+  color: var(--brand-blue);
+}
+
+button,
+[role="button"] {
+  transition:
+    transform 200ms ease-out,
+    background-color 200ms ease-out,
+    color 200ms ease-out,
+    border-color 200ms ease-out,
+    opacity 200ms ease-out;
+}
+
+button:not(:disabled):hover,
+[role="button"]:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+button:not(:disabled):active,
+[role="button"]:not(:disabled):active {
+  transform: translateY(0);
+}
+
+input,
+select,
+textarea {
+  transition:
+    border-color 200ms ease-out,
+    background-color 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+
+.surface-card {
+  border: 1px solid var(--grid-gray);
+  background: var(--paper-white);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.hairline {
+  border: 1px solid var(--grid-gray);
+}
+
+.tech-dots {
+  background-image: radial-gradient(circle, rgba(25, 27, 32, 0.14) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono-ui);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(25, 27, 32, 0.7);
+}
+
+.spectrum-bar {
+  background: linear-gradient(90deg, #d8ff70 0%, #06b6d4 50%, #2563eb 100%);
+}
+
+[class*="rounded"] {
+  border-radius: 0 !important;
+}
+
+[class*="shadow"] {
+  box-shadow: none !important;
+}
+
+.route-enter-forward {
+  animation: routeForward 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.route-enter-back {
+  animation: routeBack 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.crumb-enter {
+  animation: crumbEnter 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.metric-enter {
+  animation: metricEnter 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tab-fade-enter {
+  animation: tabFade 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.deploy-step-enter {
+  animation: deployStep 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.modal-backdrop-enter {
+  animation: modalBackdropIn 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-panel-enter {
+  animation: modalPanelIn 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-backdrop-exit {
+  animation: modalBackdropOut 160ms ease-in forwards;
+}
+
+.modal-panel-exit {
+  animation: modalPanelOut 160ms ease-in forwards;
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    95deg,
+    rgba(255, 255, 255, 0) 0%,
+      rgba(216, 255, 112, 0.42) 24%,
+      rgba(6, 182, 212, 0.36) 48%,
+      rgba(37, 99, 235, 0.28) 72%,
+      rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.5s ease-out infinite;
+}
+
+.doc-markdown pre {
+  border-radius: 0;
+  padding: 1rem;
+  overflow-x: auto;
+  background: #191b20;
+  color: #f7fbff;
+  border: 1px solid #343a45;
+}
+
+.doc-markdown code {
+  padding: 0.08rem 0.3rem;
+  border-radius: 0;
+  background: #f2f4f7;
+  color: #191b20;
+}
+
+.doc-markdown pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+@keyframes routeForward {
+  from {
+    opacity: 0;
+    transform: translateX(10px) translateY(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes routeBack {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) translateY(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes crumbEnter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes metricEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes tabFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes deployStep {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes modalBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalBackdropOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalPanelOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (max-width: 768px) {
+  .route-enter-forward,
+  .route-enter-back,
+  .crumb-enter,
+  .metric-enter,
+  .tab-fade-enter,
+  .deploy-step-enter {
+    animation-duration: 180ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

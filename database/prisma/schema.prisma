@@ -1,0 +1,344 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum InstanceStatus {
+  PROVISIONING
+  RUNNING
+  STOPPED
+  RESTARTING
+  TERMINATED
+  FAILED
+}
+
+enum QuoteStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BillingType {
+  DEBIT
+  CREDIT
+  INVOICE
+  PAYMENT
+  REFERRAL_REWARD
+}
+
+enum TokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+enum ReferralStatus {
+  PENDING
+  REWARDED
+  EXPIRED
+}
+
+enum UsageMetricType {
+  GPU_HOURS
+  CPU_HOURS
+  STORAGE_GB_HOURS
+}
+
+enum PaymentMethodType {
+  CARD
+  BANK
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  VOID
+}
+
+model User {
+  id                   String          @id @default(cuid())
+  email                String          @unique
+  passwordHash         String
+  fullName             String
+  role                 UserRole        @default(USER)
+  emailVerifiedAt      DateTime?
+  onboardingCompleted  Boolean         @default(false)
+  onboardingUserType   String?
+  onboardingUseCase    String?
+  onboardingRegion     String?
+  preferredRegion      String?
+  notificationProduct  Boolean         @default(true)
+  notificationBilling  Boolean         @default(true)
+  referralCode         String          @unique
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  sessions             Session[]
+  authTokens           AuthToken[]
+  instances            Instance[]
+  sshKeys              SSHKey[]
+  billingRecords       BillingRecord[]
+  usageRecords         UsageRecord[]
+  referralsMade        Referral[]      @relation("ReferrerUser")
+  referralAsReferred   Referral?       @relation("ReferredUser")
+  quoteRequests        QuoteRequest[]
+  apiKeys              APIKey[]
+  paymentMethods       PaymentMethod[]
+  invoices             Invoice[]
+
+  @@index([createdAt])
+}
+
+model Session {
+  id          String    @id @default(cuid())
+  userId      String
+  tokenHash   String    @unique
+  ipAddress   String?
+  userAgent   String?
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
+}
+
+model AuthToken {
+  id          String    @id @default(cuid())
+  userId      String
+  tokenHash   String    @unique
+  type        TokenType
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, expiresAt])
+}
+
+model MarketplaceItem {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  name           String
+  gpuType        String
+  provider       String
+  vramGb         Int
+  cpuCores       Int
+  memoryGb       Int
+  storageGb      Int
+  pricePerHour   Decimal        @db.Decimal(10, 4)
+  region         String
+  availability   Int
+  specs          Json?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  instances      Instance[]
+  usageRecords   UsageRecord[]
+
+  @@index([gpuType, region])
+  @@index([pricePerHour])
+  @@index([availability])
+}
+
+model SSHKey {
+  id           String      @id @default(cuid())
+  userId       String
+  name         String
+  publicKey    String
+  fingerprint  String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instances    Instance[]
+
+  @@unique([userId, name])
+  @@unique([userId, fingerprint])
+  @@index([userId])
+}
+
+model Instance {
+  id                      String          @id @default(cuid())
+  userId                  String
+  marketplaceItemId       String
+  sshKeyId                String?
+  name                    String
+  region                  String
+  image                   String
+  status                  InstanceStatus  @default(PROVISIONING)
+  costPerHour             Decimal         @db.Decimal(10, 4)
+  launchedAt              DateTime?
+  terminatedAt            DateTime?
+  provisioningStartedAt   DateTime        @default(now())
+  provisioningCompletedAt DateTime?
+  provisioningEta         DateTime?
+  failureReason           String?
+  lastStatusChangeAt      DateTime        @default(now())
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+
+  user                    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  marketplaceItem         MarketplaceItem @relation(fields: [marketplaceItemId], references: [id], onDelete: Restrict)
+  sshKey                  SSHKey?         @relation(fields: [sshKeyId], references: [id], onDelete: SetNull)
+  usageRecords            UsageRecord[]
+  billingRecords          BillingRecord[]
+  logs                    InstanceLog[]
+
+  @@index([userId, status])
+  @@index([region])
+  @@index([createdAt])
+}
+
+model InstanceLog {
+  id          String    @id @default(cuid())
+  instanceId  String
+  level       String
+  message     String
+  createdAt   DateTime  @default(now())
+
+  instance    Instance  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId, createdAt])
+}
+
+model BillingRecord {
+  id           String      @id @default(cuid())
+  userId       String
+  instanceId   String?
+  invoiceId    String?
+  type         BillingType
+  description  String
+  amount       Decimal     @db.Decimal(10, 2)
+  currency     String      @default("USD")
+  balanceAfter Decimal?    @db.Decimal(10, 2)
+  metadata     Json?
+  createdAt    DateTime    @default(now())
+
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instance     Instance?   @relation(fields: [instanceId], references: [id], onDelete: SetNull)
+  invoice      Invoice?    @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([type])
+}
+
+model UsageRecord {
+  id                String           @id @default(cuid())
+  userId            String
+  instanceId        String?
+  marketplaceItemId String?
+  metricType        UsageMetricType  @default(GPU_HOURS)
+  quantity          Decimal          @db.Decimal(10, 4)
+  region            String
+  recordedAt        DateTime         @default(now())
+  createdAt         DateTime         @default(now())
+
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instance          Instance?        @relation(fields: [instanceId], references: [id], onDelete: SetNull)
+  marketplaceItem   MarketplaceItem? @relation(fields: [marketplaceItemId], references: [id], onDelete: SetNull)
+
+  @@index([userId, recordedAt])
+  @@index([marketplaceItemId, recordedAt])
+  @@index([region, recordedAt])
+}
+
+model Referral {
+  id                String         @id @default(cuid())
+  referrerId        String
+  referredId        String         @unique
+  code              String
+  status            ReferralStatus @default(PENDING)
+  rewardAmount      Decimal        @default(0) @db.Decimal(10, 2)
+  rewardTriggeredAt DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  referrer          User           @relation("ReferrerUser", fields: [referrerId], references: [id], onDelete: Cascade)
+  referred          User           @relation("ReferredUser", fields: [referredId], references: [id], onDelete: Cascade)
+
+  @@index([referrerId])
+  @@index([status])
+}
+
+model QuoteRequest {
+  id            String      @id @default(cuid())
+  userId        String
+  gpuType       String
+  quantity      Int
+  durationHours Int
+  region        String
+  notes         String?
+  status        QuoteStatus @default(PENDING)
+  reviewNotes   String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([createdAt])
+}
+
+model APIKey {
+  id         String    @id @default(cuid())
+  userId     String
+  name       String
+  keyPrefix  String
+  keyHash    String    @unique
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+}
+
+model PaymentMethod {
+  id         String            @id @default(cuid())
+  userId     String
+  type       PaymentMethodType
+  provider   String
+  brand      String
+  last4      String
+  expMonth   Int
+  expYear    Int
+  isDefault  Boolean           @default(false)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isDefault])
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  userId      String
+  periodStart DateTime
+  periodEnd   DateTime
+  totalAmount Decimal       @db.Decimal(10, 2)
+  status      InvoiceStatus @default(PENDING)
+  issuedAt    DateTime      @default(now())
+  paidAt      DateTime?
+  createdAt   DateTime      @default(now())
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingRecords BillingRecord[]
+
+  @@index([userId, periodStart, periodEnd])
+}
