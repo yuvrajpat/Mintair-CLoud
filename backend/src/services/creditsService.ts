@@ -55,7 +55,7 @@ function getCheckoutRedirectCancelUrl(): string {
 }
 
 function amountUsdToUsdcAtomic(amountUsd: number): string {
-  return String(Math.round(amountUsd * 1_000_000));
+  return String(Math.round(amountUsd * 100_000_000));
 }
 
 function readCopperxErrorMessage(payload: CopperxCheckoutResponse | null): string | null {
