@@ -340,7 +340,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               ))}
             </nav>
 
-            <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+            <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="eyebrow text-brand-blue">Workspace</p>
                 <h1 className="mt-2 text-[1.6rem] leading-tight text-ink-900 sm:text-[1.8rem] lg:text-[1.95rem]">
@@ -350,7 +350,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   {activeNav?.description ?? "Deploy and manage infrastructure with calm, confident control."}
                 </p>
               </div>
-              <div ref={creditsPanelRef} className="relative flex items-center gap-2">
+              <div ref={creditsPanelRef} className="relative ml-auto">
                 <button
                   type="button"
                   onClick={() => setCreditsOpen((open) => !open)}
@@ -359,9 +359,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <CircleDollarSign className="h-4 w-4" />
                   Credits {availableCredits.toFixed(2)}
                 </button>
-                <div className="hidden border border-brand-gray bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-brand-charcoal sm:block">
-                  Live infrastructure workspace
-                </div>
 
                 {creditsOpen ? (
                   <div className="absolute right-0 top-[calc(100%+8px)] z-[70] w-[285px] border border-brand-gray bg-white p-3 shadow-sm">
