@@ -48,34 +48,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.08fr_0.92fr]">
-      <Card className="overflow-hidden border-brand-charcoal bg-brand-charcoal p-0 text-white">
-        <div className="relative h-full bg-[radial-gradient(circle_at_14%_16%,rgba(6,182,212,0.16),transparent_40%),radial-gradient(circle_at_78%_18%,rgba(37,99,235,0.28),transparent_45%),linear-gradient(180deg,#171b23_0%,#13161d_100%)] px-7 py-8 md:px-9 md:py-10">
-          <p className="eyebrow text-brand-cyan">Control Plane</p>
-          <h2 className="mt-3 max-w-xl text-[2rem] leading-[1.15] text-white md:text-[2.35rem]">
-            Enterprise-grade infrastructure access.
-          </h2>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/75">
-            Run deployments, monitor usage, and manage spend from a single purpose-built command surface.
-          </p>
-
-          <div className="mt-8 grid grid-cols-1 gap-2 text-sm text-white/80 sm:grid-cols-2">
-            <div className="border border-brand-cyan/35 bg-white/5 px-3 py-3">
-              <p className="font-medium text-white">Session security</p>
-              <p className="mt-0.5 text-xs text-white/70">Rotating auth tokens with server-side revocation.</p>
-            </div>
-            <div className="border border-brand-cyan/35 bg-white/5 px-3 py-3">
-              <p className="font-medium text-white">Operational clarity</p>
-              <p className="mt-0.5 text-xs text-white/70">Unified view across regions and compute profiles.</p>
-            </div>
-          </div>
-
-          <div className="mt-7 border-t border-white/20 pt-4 text-xs text-white/65">
-            Trusted by teams running high-uptime GPU workloads.
-          </div>
-        </div>
-      </Card>
-
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[0.94fr_1.06fr]">
       <Card className="mx-auto w-full max-w-xl border-brand-gray bg-white">
         <div className="mb-5">
           <p className="eyebrow text-brand-blue">Welcome back</p>
@@ -135,6 +108,33 @@ export default function LoginPage() {
             Tip
           </span>{" "}
           If you were redirected from verification, sign in and continue onboarding.
+        </div>
+      </Card>
+
+      <Card className="overflow-hidden border-brand-charcoal bg-brand-charcoal p-0 text-white">
+        <div className="relative h-full bg-[radial-gradient(circle_at_14%_16%,rgba(6,182,212,0.16),transparent_40%),radial-gradient(circle_at_78%_18%,rgba(37,99,235,0.28),transparent_45%),linear-gradient(180deg,#171b23_0%,#13161d_100%)] px-6 py-7 sm:px-7 sm:py-8 md:px-9 md:py-10">
+          <p className="eyebrow text-brand-cyan">Control Plane</p>
+          <h2 className="mt-3 max-w-xl text-[1.7rem] leading-[1.15] text-white sm:text-[2rem] md:text-[2.35rem]">
+            Enterprise-grade infrastructure access.
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/75">
+            Run deployments, monitor usage, and manage spend from a single purpose-built command surface.
+          </p>
+
+          <div className="mt-6 grid grid-cols-1 gap-2 text-sm text-white/80 sm:mt-8 sm:grid-cols-2">
+            <div className="border border-brand-cyan/35 bg-white/5 px-3 py-3">
+              <p className="font-medium text-white">Session security</p>
+              <p className="mt-0.5 text-xs text-white/70">Rotating auth tokens with server-side revocation.</p>
+            </div>
+            <div className="border border-brand-cyan/35 bg-white/5 px-3 py-3">
+              <p className="font-medium text-white">Operational clarity</p>
+              <p className="mt-0.5 text-xs text-white/70">Unified view across regions and compute profiles.</p>
+            </div>
+          </div>
+
+          <div className="mt-6 border-t border-white/20 pt-4 text-xs text-white/65 sm:mt-7">
+            Trusted by teams running high-uptime GPU workloads.
+          </div>
         </div>
       </Card>
     </div>

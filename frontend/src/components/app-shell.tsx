@@ -11,9 +11,11 @@ import {
   LayoutDashboard,
   LifeBuoy,
   LogOut,
+  Menu,
   ScrollText,
   Settings,
-  UserPlus
+  UserPlus,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -51,6 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, refreshSession } = useSession();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [routeDirection, setRouteDirection] = useState<"forward" | "back">("forward");
 
   const activeNav = useMemo(() => navItems.find((item) => pathname.startsWith(item.href)), [pathname]);
@@ -110,6 +113,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     window.sessionStorage.setItem(storageKey, JSON.stringify(stack.slice(-28)));
   }, [pathname]);
 
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    document.body.style.overflow = mobileNavOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileNavOpen]);
+
   const onLogout = async () => {
     try {
       setLoggingOut(true);
@@ -122,13 +140,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       toast.error(message);
     } finally {
       setLoggingOut(false);
+      setMobileNavOpen(false);
     }
   };
 
   return (
-    <div className="min-h-screen px-3 py-3 sm:px-4 sm:py-4 md:px-5 md:py-5">
-      <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1380px] flex-col border border-brand-gray bg-white p-2.5 lg:flex-row lg:p-3">
-        <aside className="surface-card border-ink-300 p-3 lg:min-h-full lg:w-[244px]">
+    <div className="min-h-screen px-2 py-2 sm:px-3 sm:py-3 md:px-4 md:py-4">
+      <div className="mx-auto flex min-h-[calc(100vh-1rem)] max-w-[1380px] flex-col border border-brand-gray bg-white lg:flex-row">
+        <div
+          className={clsx(
+            "fixed inset-0 z-40 bg-brand-charcoal/45 transition-opacity duration-200 lg:hidden",
+            mobileNavOpen ? "opacity-100" : "pointer-events-none opacity-0"
+          )}
+          onClick={() => setMobileNavOpen(false)}
+        />
+
+        <aside
+          className={clsx(
+            "surface-card border-ink-300 p-3 lg:min-h-full lg:w-[244px]",
+            "fixed inset-y-0 left-0 z-50 w-[86vw] max-w-[330px] -translate-x-full overflow-y-auto transition-transform duration-200 lg:static lg:z-auto lg:w-[244px] lg:max-w-none lg:translate-x-0",
+            mobileNavOpen && "translate-x-0"
+          )}
+        >
           <div className="mb-5 flex items-center justify-between">
             <Link href="/dashboard" className="inline-flex items-center gap-2">
               <span className="inline-flex h-8 w-8 items-center justify-center bg-brand-charcoal text-xs font-medium text-brand-lime">
@@ -136,9 +169,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </span>
               <span className="font-mono text-[13px] uppercase tracking-[0.08em] text-ink-900">Mintair Cloud</span>
             </Link>
-            <Button size="sm" variant="ghost" className="lg:hidden" onClick={() => router.push("/docs")} aria-label="Open docs">
-              <LifeBuoy className="h-4 w-4" />
-            </Button>
+
+            <div className="flex items-center gap-1">
+              <Button size="sm" variant="ghost" className="lg:hidden" onClick={() => router.push("/docs")} aria-label="Open docs">
+                <LifeBuoy className="h-4 w-4" />
+              </Button>
+              <Button size="sm" variant="ghost" className="lg:hidden" onClick={() => setMobileNavOpen(false)} aria-label="Close menu">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           <nav className="space-y-1">
@@ -150,6 +189,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => setMobileNavOpen(false)}
                   className={clsx(
                     "group flex items-center justify-between border px-2.5 py-2 text-sm transition-all duration-150",
                     active
@@ -177,15 +217,49 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="mt-6 border border-brand-gray bg-white p-3">
             <p className="eyebrow text-ink-500">Signed in</p>
             <p className="mt-1 truncate text-sm font-medium text-ink-800">{user?.email}</p>
-            <Button className="mt-3 w-full" size="sm" variant="secondary" onClick={onLogout} loading={loggingOut} loadingLabel="Signing out">
+            <Button
+              className="mt-3 w-full"
+              size="sm"
+              variant="secondary"
+              onClick={onLogout}
+              loading={loggingOut}
+              loadingLabel="Signing out"
+            >
               <LogOut className="h-4 w-4" />
               Logout
             </Button>
           </div>
         </aside>
 
-        <main className="flex-1 px-1 pt-3 lg:px-6 lg:pt-0">
-          <header className="surface-card mb-5 border-ink-300 px-5 py-4">
+        <main className="flex-1 px-2 pb-2 pt-2 sm:px-3 sm:pb-3 sm:pt-3 lg:px-6 lg:py-5">
+          <div className="surface-card mb-3 border-ink-300 px-3 py-3 lg:hidden">
+            <div className="flex items-center justify-between gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="h-9 px-3"
+                onClick={() => setMobileNavOpen(true)}
+                aria-label="Open menu"
+                aria-expanded={mobileNavOpen}
+              >
+                <Menu className="h-4 w-4" />
+                Menu
+              </Button>
+
+              <Link href="/dashboard" className="inline-flex items-center gap-2">
+                <span className="inline-flex h-8 w-8 items-center justify-center bg-brand-charcoal text-xs font-medium text-brand-lime">
+                  MC
+                </span>
+                <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-ink-900">Mintair Cloud</span>
+              </Link>
+
+              <Button size="sm" variant="ghost" onClick={() => router.push("/docs")} aria-label="Open docs">
+                <LifeBuoy className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          <header className="surface-card mb-4 border-ink-300 px-4 py-4 sm:px-5 lg:mb-5">
             <nav key={pathname} className="crumb-enter flex items-center gap-1 text-xs text-ink-500">
               {breadcrumbs.map((crumb, index) => (
                 <span key={crumb.href} className="inline-flex items-center gap-1">
@@ -204,12 +278,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="eyebrow text-brand-blue">Workspace</p>
-                <h1 className="mt-2 text-[1.95rem] leading-tight text-ink-900">{activeNav?.label ?? "Console"}</h1>
+                <h1 className="mt-2 text-[1.6rem] leading-tight text-ink-900 sm:text-[1.8rem] lg:text-[1.95rem]">
+                  {activeNav?.label ?? "Console"}
+                </h1>
                 <p className="mt-1 text-sm leading-relaxed text-ink-500">
                   {activeNav?.description ?? "Deploy and manage infrastructure with calm, confident control."}
                 </p>
               </div>
-              <div className="hidden border border-brand-gray bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-brand-charcoal md:block">
+              <div className="hidden border border-brand-gray bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-brand-charcoal sm:block">
                 Live infrastructure workspace
               </div>
             </div>

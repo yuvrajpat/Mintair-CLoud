@@ -27,19 +27,36 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className="min-h-screen px-4 py-10 md:px-6 md:py-12">
-      <div className="mx-auto max-w-5xl">
-        <div className="surface-card mb-8 border-ink-300 px-6 py-7 md:px-8 md:py-9">
-          <p className="eyebrow text-brand-blue">Mintair Cloud</p>
-          <h1 className="mt-3 max-w-2xl text-3xl leading-tight text-ink-900 md:text-[2.35rem]">
-            AI infrastructure command for modern enterprise teams.
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-500 md:text-[15px]">
-            Authenticate once, onboard fast, and operate deployments with predictable cost visibility.
-          </p>
+    <div className="min-h-screen px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-8">
+      <div className="mx-auto max-w-6xl">
+        <div className="surface-card border-ink-300 px-4 py-4 sm:px-5 sm:py-5">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-9 w-9 items-center justify-center bg-brand-charcoal font-mono text-xs uppercase tracking-[0.08em] text-brand-lime">
+              MC
+            </span>
+            <div>
+              <p className="font-mono text-[13px] uppercase tracking-[0.08em] text-ink-900">Mintair Cloud</p>
+              <p className="text-sm text-ink-500">Calm infrastructure command center</p>
+            </div>
+          </div>
         </div>
 
-        <div className="route-enter-forward">{children}</div>
+        <div className="mt-4 route-enter-forward">{children}</div>
+
+        <div className="mt-4 grid grid-cols-1 gap-3 md:mt-5 md:grid-cols-3">
+          <div className="surface-card border-ink-300 p-4">
+            <p className="eyebrow text-brand-blue">Secure</p>
+            <p className="mt-2 text-sm text-ink-700">Session-based authentication with guarded workspace access.</p>
+          </div>
+          <div className="surface-card border-ink-300 p-4">
+            <p className="eyebrow text-brand-blue">Fast</p>
+            <p className="mt-2 text-sm text-ink-700">Sign in and continue directly to onboarding or active console.</p>
+          </div>
+          <div className="surface-card border-ink-300 p-4">
+            <p className="eyebrow text-brand-blue">Reliable</p>
+            <p className="mt-2 text-sm text-ink-700">Consistent behavior across desktop, mobile Safari, and Chrome.</p>
+          </div>
+        </div>
       </div>
     </div>
   );

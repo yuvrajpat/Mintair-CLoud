@@ -29,9 +29,9 @@ export function Button({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
         "active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-60",
         isArrowVariant && "group border-0 bg-transparent p-0 text-ink-900",
-        size === "sm" && "h-9 px-3.5 text-xs",
-        size === "md" && "h-10 px-4 text-sm",
-        size === "lg" && "h-11 px-5 text-sm",
+        size === "sm" && "h-10 px-3.5 text-xs sm:h-9",
+        size === "md" && "h-11 px-4 text-sm sm:h-10",
+        size === "lg" && "h-12 px-5 text-sm sm:h-11",
         variant === "primary" &&
           "border-brand-charcoal bg-brand-charcoal text-white hover:bg-[#252933] active:bg-[#252933] disabled:border-ink-400 disabled:bg-ink-400",
         variant === "secondary" &&
